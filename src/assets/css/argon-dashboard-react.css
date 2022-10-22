@@ -4673,7 +4673,7 @@ button.close {
   vertical-align: text-top !important; }
 
 .bg-primary {
-  background-color: #5e72e4 !important; }
+  background-color: #8395b2 !important; }
 
 a.bg-primary:hover, a.bg-primary:focus,
 button.bg-primary:hover,
@@ -4737,7 +4737,7 @@ button.bg-dark:focus {
   background-color: #0a0c0d !important; }
 
 .bg-greenAdmin{
-  background-color: #87d7c0;
+  background-color: #0b1d3a;
 }
 
 .bg-default {
@@ -6023,7 +6023,7 @@ button.bg-darker:focus {
 
 .pt-5,
 .py-5 {
-  padding-top: 3rem !important; }
+  padding-top: 1.5rem !important; }
 
 .pr-5,
 .px-5 {
@@ -6031,7 +6031,7 @@ button.bg-darker:focus {
 
 .pb-5,
 .py-5 {
-  padding-bottom: 3rem !important; }
+  padding-bottom: 1.5rem !important; }
 
 .pl-5,
 .px-5 {
@@ -8652,6 +8652,9 @@ a.text-darker:hover, a.text-darker:focus {
 .text-muted {
   color: #8898aa !important; }
 
+.text-muted2{
+  color: #f5f5f5 !important; }
+
 .text-black-50 {
   color: rgba(0, 0, 0, 0.5) !important; }
 
@@ -10342,13 +10345,14 @@ a.btn-icon-only {
     top: 0;
     width: 100%;
     z-index: 1;
-    background-color: transparent;
+    background-color: #8395b2 !important;
     padding-left: 0 !important;
     padding-right: 0 !important; }
   @media (min-width: 768px) {
     .main-content .container-fluid {
       padding-left: 39px !important;
-      padding-right: 39px !important; } }
+      padding-right: 39px !important; } 
+}
 
 .navbar-vertical.navbar-expand-xs.fixed-left + .main-content {
   margin-left: 250px; }

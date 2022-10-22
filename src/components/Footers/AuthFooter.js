@@ -28,11 +28,11 @@ class Login extends React.Component {
 	render() {
 		return (
 			<>
-				<footer className="py-5">
+				<footer style={{backgroundColor: "#8395b2", padding: "1.5rem",}}>
 					<Container>
 						<Row className="align-items-center justify-content-xl-between">
 							<Col xl="6">
-								<div className="copyright text-center text-xl-left text-muted">
+								<div className="copyright text-center text-xl-left" style={{ color: "#525f7f" }}>
 									© 2022 <a className="font-weight-bold ml-1">RedEx</a>
 								</div>
 							</Col>

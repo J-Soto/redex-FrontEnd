@@ -31,10 +31,7 @@ import routes from "routes.js";
 
 class Auth extends React.Component {
 	componentDidMount() {
-		document.body.classList.add("bg-primary");
-	}
-	componentWillUnmount() {
-		document.body.classList.remove("bg-primary");
+		document.body.style.backgroundColor = "#8395b2";
 	}
 	getRoutes = (routes) => {
 		return routes.map((prop, key) => {
@@ -54,11 +51,11 @@ class Auth extends React.Component {
 	render() {
 		return (
 			<>
-				<div className="main-content">
+				<div className="main-content" style={{backgroundColor: "#8395b2"}}>
 					<AuthNavbar />
 					<div
-						className="header  py-7 py-lg-8"
-						style={{ backgroundColor: "#87d7c0" }}>
+						className="header py-7"
+						style={{ backgroundColor: "#0b1d3a", padding: "5.5rem" }}>
 						<Container>
 							<div className="header-body text-center mb-7">
 								<Row className="justify-content-center">
@@ -68,7 +65,7 @@ class Auth extends React.Component {
 											alt="..."
 											height="100px"
 											width="100px"
-											src={require("assets/img/brand/favicon.png")}
+											src={require("assets/img/brand/logoRedex2.png")}
 										/>
 									</Col>
 								</Row>
@@ -84,14 +81,14 @@ class Auth extends React.Component {
 								y="0">
 								<polygon
 									//class="fill-default"
-									style={{ fill: "#5e72e4" }}
+									style={{ fill: "#8395b2" }}
 									points="2560 0 2560 100 0 100"
 								/>
 							</svg>
 						</div>
 					</div>
 					{/* Page content */}
-					<Container className="mt--8 pb-5">
+					<Container className="mt--8">
 						<Row className="justify-content-center">
 							<Switch>
 								{this.getRoutes(routes)}
