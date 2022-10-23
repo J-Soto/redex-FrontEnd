@@ -15,6 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import { rgbToHex } from "@material-ui/core";
 import React from "react";
 
 // reactstrap components
@@ -132,8 +133,8 @@ class Login extends React.Component {
         <Col lg="5" md="7">
           <Card className="bg-secondary shadow border-0">
             <CardBody className="px-lg-5 py-lg-5">
-              <div className="text-center text-muted mb-4">
-                <small>¡Bienvenido! Por favor inicie sesión.</small>
+              <div className="text-center mb-4" style={{ color: "#001d55", fontSize: "15px", fontWeight: "900" }}>
+                <div>¡Bienvenido! Por favor inicie sesión.</div>
               </div>
               <Form role="form">
                 <FormGroup className="mb-3">
@@ -177,11 +178,11 @@ class Login extends React.Component {
                 <div className="text-center">
                   <Button
                     className="my-4"
-                    color="primary"
+                    color= "default"
                     type="button"
                     onClick={this.enterToAdmin}
                   >
-                    Entrar
+                    Iniciar Sesión
                   </Button>
                 </div>
               </Form>
@@ -193,7 +194,7 @@ class Login extends React.Component {
               href="#pablo"
               onClick={(e) => e.preventDefault()}
             >
-              {/* <small>¿Olvidó su contraseña?</small>*/}
+              {/* <small>¿Olvidó su contraseña?</small> */}
             </a>
           </Row>
         </Col>
