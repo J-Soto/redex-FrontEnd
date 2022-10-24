@@ -40,7 +40,7 @@ var routes = [
   {
     path: "/index",
     name: "Inicio",
-    icon: "fas fa-home text-gray-dark",
+    icon: "fas fa-home",
     component: Index,
     layout: "/admin",
     side: true,
@@ -50,7 +50,7 @@ var routes = [
   {
     path: "/shipmentsAll",
     name: "Envíos",
-    icon: "ni ni-send text-gray-dark",
+    icon: "ni ni-send",
     component: ShipmentSA,
     layout: "/admin",
     side: true,
@@ -60,7 +60,7 @@ var routes = [
   {
     path: "/flights",
     name: "Vuelos",
-    icon: "fas fa-ticket-alt text-gray-dark",
+    icon: "fas fa-ticket-alt",
     component: Flight,
     layout: "/admin",
     side: true,
@@ -69,7 +69,7 @@ var routes = [
   {
     path: "/airports",
     name: "Aeropuertos",
-    icon: "fas fa-plane text-gray-dark",
+    icon: "fas fa-plane",
     component: Airport,
     layout: "/admin",
     side: true,
@@ -78,7 +78,7 @@ var routes = [
   {
     path: "/simulation",
     name: "Simulación",
-    icon: "fas fa-file-alt text-gray-dark",
+    icon: "fas fa-file-alt",
     component: Simulation,
     layout: "/admin",
     side: true,
@@ -88,7 +88,7 @@ var routes = [
   {
     path: "/login",
     name: "Login",
-    icon: "ni ni-key-25 text-gray-dark",
+    icon: "ni ni-key-25",
     component: Login,
     layout: "/auth",
     side: false,
@@ -98,7 +98,7 @@ var routes = [
   {
     path: "/shipmentsOut",
     name: "Envíos de salida",
-    icon: "ni ni-send text-gray-dark",
+    icon: "ni ni-send",
     component: Shipment,
     layout: "/admin",
     side: true,
@@ -107,7 +107,7 @@ var routes = [
   {
     path: "/shipmentsIn",
     name: "Envíos de entrada",
-    icon: "fas fa-inbox text-gray-dark",
+    icon: "fas fa-inbox",
     component: ShipmentIn,
     layout: "/admin",
     side: true,
@@ -117,7 +117,7 @@ var routes = [
   {
     path: "/clients",
     name: "Clientes",
-    icon: "ni ni-single-02 text-gray-dark",
+    icon: "ni ni-single-02",
     component: Client,
     layout: "/admin",
     side: true,
@@ -126,7 +126,7 @@ var routes = [
   {
     path: "/warehouse",
     name: "Almacén de salida",
-    icon: "ni ni-bag-17 text-gray-dark",
+    icon: "ni ni-bag-17",
     component: Warehouse,
     layout: "/admin",
     side: true,
@@ -136,7 +136,7 @@ var routes = [
   {
     path: "/warehouseIn",
     name: "Almacén de entrada",
-    icon: "ni ni-bag-17 text-gray-dark",
+    icon: "ni ni-bag-17",
     component: WarehouseIn,
     layout: "/admin",
     side: true,
@@ -146,7 +146,7 @@ var routes = [
   {
     path: "/monitoring",
     name: "Monitoreo de envíos",
-    icon: "fa fa-chart-pie text-gray-dark",
+    icon: "fa fa-chart-pie",
     component: ShippingMonitoring,
     layout: "/admin",
     side: true,
@@ -156,7 +156,7 @@ var routes = [
   {
     path: "/addShipmentStep1",
     name: "Nuevo Envío",
-    icon: "ni ni-circle-08 text-gray-dark",
+    icon: "ni ni-circle-08",
     component: ShipmentStep1,
     layout: "/admin",
     side: false,
@@ -165,7 +165,7 @@ var routes = [
   {
     path: "/addShipmentStep2",
     name: "Nuevo Envío",
-    icon: "ni ni-circle-08 text-gray-dark",
+    icon: "ni ni-circle-08",
     component: ShipmentStep2,
     layout: "/admin",
     side: false,
@@ -174,7 +174,7 @@ var routes = [
   {
     path: "/addShipmentStep3",
     name: "Nuevo Envío",
-    icon: "ni ni-circle-08 text-gray-dark",
+    icon: "ni ni-circle-08",
     component: ShipmentStep3,
     layout: "/admin",
     side: false,
@@ -183,11 +183,12 @@ var routes = [
   {
     path: "/addShipmentStep4",
     name: "Nuevo Envío",
-    icon: "ni ni-circle-08 text-gray-dark",
+    icon: "ni ni-circle-08",
     component: ShipmentStep4,
     layout: "/admin",
     side: false,
     role: 1,
   },
 ];
+// en icon: text-gray-dark
 export default routes;

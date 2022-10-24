@@ -6,7 +6,7 @@ class APIWarehouse extends APIHandler {
 	async queryWarehouseByIdAirport(_idAirport) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/warehouse/findby/city/airport?id=" +
+				"http://54.163.93.146:8090/dp1/api/warehouse/findby/city/airport?id=" +
 					_idAirport
 			);
 			return data;
@@ -18,7 +18,7 @@ class APIWarehouse extends APIHandler {
 	async queryAllWarehouse() {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/warehouse/all"
+				"http://54.163.93.146:8090/dp1/api/warehouse/all"
 			);
 			return data;
 		} catch (error) {
@@ -29,7 +29,7 @@ class APIWarehouse extends APIHandler {
 	async editCapacity(_idWarehouse, _capacity) {
 		try {
 			const data = await this.postRequest2(
-				"http://localhost:8090/dp1/api/warehouse/update/capacity?id=" +
+				"http://54.163.93.146:8090/dp1/api/warehouse/update/capacity?id=" +
 					_idWarehouse +
 					"&capacity=" +
 					_capacity
@@ -42,7 +42,7 @@ class APIWarehouse extends APIHandler {
 	async getInfoWarehouse(_idWarehouse) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/warehouse/info?id=" + _idWarehouse
+				"http://54.163.93.146:8090/dp1/api/warehouse/info?id=" + _idWarehouse
 			);
 			return data;
 		} catch (error) {

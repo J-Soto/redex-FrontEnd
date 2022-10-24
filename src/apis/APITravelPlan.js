@@ -6,7 +6,7 @@ class APITravelPlan extends APIHandler {
 	async generateRoute(_idStart, _idDest) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/airport/flight/route/generateRoute?idStart=" +
+				"http://54.163.93.146:8090/dp1/api/airport/flight/route/generateRoute?idStart=" +
 					_idStart +
 					"&idObjective=" +
 					_idDest

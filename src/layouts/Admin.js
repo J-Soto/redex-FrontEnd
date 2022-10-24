@@ -88,7 +88,7 @@ class Admin extends React.Component {
           routes={this.state.routesSB}
           logo={{
             innerLink: "/admin/index",
-            imgSrc: require("assets/img/brand/logoRedExTraceTools.png"),
+            imgSrc: require("assets/img/brand/logoRedex2.png"),
             imgAlt: "...",
           }}
         />

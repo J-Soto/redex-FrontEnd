@@ -6,7 +6,7 @@ class APIShipment extends APIHandler {
 	async findShipmentByTrackingCode(_trackingCode) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/dispatch/tracking?code=" + _trackingCode
+				"http://54.163.93.146:8090/dp1/api/dispatch/tracking?code=" + _trackingCode
 			);
 			return data;
 		} catch (error) {
@@ -16,7 +16,7 @@ class APIShipment extends APIHandler {
 	async listShipments(_id) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/dispatch/findby/oairport?code=" + _id
+				"http://54.163.93.146:8090/dp1/api/dispatch/findby/oairport?code=" + _id
 			);
 			return data;
 		} catch (error) {
@@ -27,7 +27,7 @@ class APIShipment extends APIHandler {
 	async listShipmentsIn(_id) {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/dispatch/findby/dairport?code=" + _id
+				"http://54.163.93.146:8090/dp1/api/dispatch/findby/dairport?code=" + _id
 			);
 			return data;
 		} catch (error) {
@@ -37,7 +37,7 @@ class APIShipment extends APIHandler {
 	async listShipmentsAll() {
 		try {
 			const data = await this.getRequest(
-				"http://localhost:8090/dp1/api/dispatch/all"
+				"http://54.163.93.146:8090/dp1/api/dispatch/all"
 			);
 			return data;
 		} catch (error) {
@@ -57,7 +57,7 @@ class APIShipment extends APIHandler {
 	) {
 		try {
 			const data = await this.postRequest(
-				"http://localhost:8090/dp1/api/dispatch/save",
+				"http://54.163.93.146:8090/dp1/api/dispatch/save",
 				{
 					status: _status,
 					late: _late,
@@ -78,7 +78,7 @@ class APIShipment extends APIHandler {
 	async finishShipmentNow(_status, _trackingCode) {
 		try {
 			const data = await this.postRequest(
-				"http://localhost:8090/dp1/api/dispatch/update/status",
+				"http://54.163.93.146:8090/dp1/api/dispatch/update/status",
 				{ tracking: _trackingCode, status: _status }
 			);
 			return data;
@@ -90,7 +90,7 @@ class APIShipment extends APIHandler {
 	async uploadZip(_file) {
 		try {
 			const data = await this.postRequest2(
-				"http://localhost:8090/dp1/api/dispatch/upload/zip",
+				"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
 				_file
 			);
 			return data;

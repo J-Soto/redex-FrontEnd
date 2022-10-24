@@ -377,7 +377,7 @@ class Simulation extends React.Component {
 		};
 		//console.log("procesando1");
 		const uploadFileAns = await fetch(
-			"http://localhost:8090/dp1/api/dispatch/upload/zip",
+			"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
 			requestOptions
 		);
 

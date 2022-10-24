@@ -31,7 +31,7 @@ import routes from "routes.js";
 
 class Auth extends React.Component {
 	componentDidMount() {
-		document.body.style.backgroundColor = "#8395b2";
+		document.body.style.backgroundColor = "#f8f9fe";
 	}
 	getRoutes = (routes) => {
 		return routes.map((prop, key) => {

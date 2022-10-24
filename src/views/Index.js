@@ -79,11 +79,11 @@ class Index extends React.Component {
 				{/* Contenido de la página principal - Bienvenido */}
 				<Header />
 				<Container>
-					<div className="text-center">
-						<h1 style={{ color: "#5e72e4" }}>Bienvenido a RedEx </h1>
+					<div className="text-center" >
+						<h1 style={{ color: "#001d55", fontSize: "30px" , fontWeight: "900" }}>Bienvenido a RedEx </h1>
 						<br />
 						{/*{this.props.location.state.infoSession["warehouse"]["airport"]["description"]} */}
-						<h1 style={{ color: "#5e72e4" }}>
+						<h1 style={{ color: "#001d55", fontWeight: "500" }}>
 							{nameAirport}, {city}, {country}{" "}
 						</h1>
 					</div>

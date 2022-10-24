@@ -98,8 +98,9 @@ class Sidebar extends React.Component {
               tag={NavLinkRRD}
               onClick={this.closeCollapse}
               activeClassName="active"
+              style={{ color: "white"} }
             >
-              <i className={prop.icon} />
+              <i className={prop.icon} style={{ color: "white" }} />
               {prop.name}
             </NavLink>
           </NavItem>
@@ -126,9 +127,10 @@ class Sidebar extends React.Component {
     }
     return (
       <Navbar
-        className="navbar-vertical fixed-left navbar-light bg-white"
+        className="navbar-vertical fixed-left navbar-light"
         expand="md"
         id="sidenav-main"
+        style={{ backgroundColor: "#010F25"}}
       >
         <Container fluid>
           {/* Toggler */}
@@ -146,6 +148,7 @@ class Sidebar extends React.Component {
                 alt={logo.imgAlt}
                 className="navbar-brand-img"
                 src={logo.imgSrc}
+                style={{ maxHeight: "5rem" }}
               />
             </NavbarBrand>
           ) : null}
