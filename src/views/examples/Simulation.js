@@ -12,7 +12,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
 
-import { GoogleMap, LoadScript, Marker, MarkerClusterer  } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, MarkerClusterer, Polyline  } from '@react-google-maps/api';
 
 // reactstrap components
 import {
@@ -91,6 +91,28 @@ const options = {
 function createKey(location) {
 	return location.lat + location.lng
 }
+
+
+const options2 = {
+	geodesic: true,
+	strokeColor: '#FF0000',
+	strokeOpacity: 0.8,
+	strokeWeight: 2,
+	fillColor: '#FF0000',
+	fillOpacity: 0.35,
+	clickable: false,
+	draggable: false,
+	editable: false,
+	visible: true,
+	radius: 30000,
+	paths: [
+	  {lat: 37.772, lng: -122.214},
+	  {lat: 21.291, lng: -157.821},
+	  {lat: -18.142, lng: 178.431},
+	  {lat: -27.467, lng: 153.027}
+	],
+	zIndex: 1
+};
 
 
 
@@ -862,7 +884,10 @@ class Simulation extends React.Component {
 														position={center1}
 													/> */}
 
-
+													<Polyline	
+														path={locations}
+														options={options2}
+													/>
 
 													<MarkerClusterer options={options}>
 														{(clusterer) =>
