@@ -12,6 +12,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
 
+
+import Maps2 from "./Maps2";
+import Maps from "./Maps";
 import { GoogleMap, LoadScript, Marker, MarkerClusterer, Polyline  } from '@react-google-maps/api';
 
 // reactstrap components
@@ -80,7 +83,6 @@ const center1 = {
 
 const locations = [
 	{ lat: -31.56391, lng: 147.154312 },
-	{ lat: -33.718234, lng: 150.363181 },
 	{ lat: -12.016421992573788, lng: -77.00842086314432 }
 ]
 
@@ -196,6 +198,7 @@ class Simulation extends React.Component {
 			airportId: 0,
 			startDate: null,
 			endDate: null,
+			progress: []
 		};
 		this.handleChange = this.handleChange.bind(this);
 		this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -547,7 +550,7 @@ class Simulation extends React.Component {
       });
     }
   };*/
-	componentWillMount = async () => {
+	componentWillMount= async () => {
 		const resultIncident = await serviceIncident.getDashboards(true);
 		const resultCountries = await serviceCountry.queryAllCountries();
 		if (resultCountries["estado"].length < 3) {
@@ -688,6 +691,10 @@ class Simulation extends React.Component {
 			this.setState({ queryTimeline: true });
 		}
 	};
+
+
+
+
 	render() {
 		for (let i = 0; i < this.state.dataTimeLine.length; i++) {
 			this.state.maxTimeLine.push(100);
@@ -870,24 +877,44 @@ class Simulation extends React.Component {
 										<Row style={{display: "flex", justifyContent: "center" }} >
 											<div style={{ height: "700px" }}>
 
-												<LoadScript
+												<Maps2/>
+
+												{/* <LoadScript
 													googleMapsApiKey="AIzaSyCCqt86Lysv0xy9Y3yni3TZkhCNYDVr0UI"
 												>
 													<GoogleMap
 														mapContainerStyle={containerStyle}
-														center={center}
-														zoom={2}
+														// center={center}
+														center={{lat: 18.559008, lng: -68.388881}}
+														zoom={16}
 													>
 
-													{/* <Marker
+													<Marker
 														icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
 														position={center1}
-													/> */}
+													/>
+
+
+													{this.state.progress && (
+														<>
+														
+															<Polyline
+																path={this.state.progress}
+																options={{ strokeColor: "#FF0000 " }}
+															/>
+
+															<Marker
+																position={this.state.progress[this.state.progress.length - 1]}
+															/>
+														
+														</>)
+													}
 
 													<Polyline	
 														path={locations}
 														options={options2}
 													/>
+													
 
 													<MarkerClusterer options={options}>
 														{(clusterer) =>
@@ -898,7 +925,9 @@ class Simulation extends React.Component {
 													</MarkerClusterer>
 													
 													</GoogleMap>
-												</LoadScript>
+												</LoadScript> */}
+
+
 											</div>
 											
 										</Row>
