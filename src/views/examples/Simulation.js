@@ -11,6 +11,9 @@ import Slider from "@material-ui/core/Slider";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
+
+import { GoogleMap, LoadScript, Marker, MarkerClusterer  } from '@react-google-maps/api';
+
 // reactstrap components
 import {
 	Alert,
@@ -58,6 +61,38 @@ const serviceStorage = new APIStorage();
 const serviceCountry = new APICountry();
 const serviceCity = new APICity();
 const serviceAirport = new APIAirport();
+
+const containerStyle = {
+	width: '1000px',
+	height: '650px'
+};
+  
+const center = {
+	lat: 0,
+	lng: 0
+};
+  
+const center1 = {
+	lat: -12.016421992573788, 
+	lng: -77.00842086314432
+};
+
+
+const locations = [
+	{ lat: -31.56391, lng: 147.154312 },
+	{ lat: -33.718234, lng: 150.363181 },
+	{ lat: -12.016421992573788, lng: -77.00842086314432 }
+]
+
+const options = {
+	imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+}
+
+function createKey(location) {
+	return location.lat + location.lng
+}
+
+
 
 // Example 2 of Chart inside src/views/Index.js (Total orders - Card)
 let chartExample2 = {
@@ -809,6 +844,41 @@ class Simulation extends React.Component {
 											</Col>
 										</Row>
 										<br />
+
+										<Row style={{display: "flex", justifyContent: "center" }} >
+											<div style={{ height: "700px" }}>
+
+												<LoadScript
+													googleMapsApiKey="AIzaSyCCqt86Lysv0xy9Y3yni3TZkhCNYDVr0UI"
+												>
+													<GoogleMap
+														mapContainerStyle={containerStyle}
+														center={center}
+														zoom={2}
+													>
+
+													{/* <Marker
+														icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
+														position={center1}
+													/> */}
+
+
+
+													<MarkerClusterer options={options}>
+														{(clusterer) =>
+															locations.map((location) => (
+															<Marker key={createKey(location)} position={location} clusterer={clusterer} />
+															))
+														}
+													</MarkerClusterer>
+													
+													</GoogleMap>
+												</LoadScript>
+											</div>
+											
+										</Row>
+
+
 										{this.state.moreInfoWarehouses ? (
 											<div>
 												<Row>
