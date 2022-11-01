@@ -27,7 +27,7 @@ import { Container, Row, Col, Nav, NavItem, NavLink } from "reactstrap";
 class Footer extends React.Component {
 	render() {  
 		return (
-			<footer className="footer" style={{backgroundColor: "#f8f9fe", padding: "1.5rem",}}>
+			<footer className="footer" style={{backgroundColor: "#f8f9fe", padding: "1.5rem", marginTop: "270px"}}>
 				<Row className="align-items-center justify-content-xl-between">
 					<Col xl="6">
 						<div className="copyright text-center text-xl-left text-muted2">

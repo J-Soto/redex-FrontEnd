@@ -7,12 +7,32 @@ import {
   Marker
 } from "react-google-maps";
 
-import { LoadScript,  MarkerClusterer  } from '@react-google-maps/api';
+import { PropTypes } from "prop-types";
+class SimuMaps extends React.Component {
+  
+  constructor(props) {
+    super(props);
+    this.getPaths.bind(this);
+    this.getDistance.bind(this);
+    console.log("Prueba 1: ");  
+    console.log(this.props.simu);
 
-class Map extends React.Component {
+    console.log("Prueba 2: ");  
+    console.log(this.props.simu2);
+  }
+
+
+
   state = {
     progress: []
   };
+
+  getPaths = (simu) =>{
+    // console.log(simu);
+    // return simu.map((vuelo) => {
+    //   console.log(vuelo);
+    // })
+  }
 
   path = [
     { lat: -31.56391, lng: 147.154312 },
@@ -24,9 +44,8 @@ class Map extends React.Component {
   initialDate = new Date();
 
   getDistance = () => {
-    // seconds between when the component loaded and now
-    const differentInTime = (new Date() - this.initialDate) / 1000; // pass to seconds
-    return differentInTime * this.velocity; // d = v*t -- thanks Newton!
+    const differentInTime = (new Date() - this.initialDate) / 1000;
+    return differentInTime * this.velocity;
   };
 
   componentDidMount = () => {
@@ -99,8 +118,6 @@ class Map extends React.Component {
 
       return { ...coordinates, distance };
     });
-
-    console.log(this.path);
   };
 
   componentDidUpdate = () => {
@@ -146,64 +163,79 @@ class Map extends React.Component {
     }
   };
   
+  render() {
 
-  render = () => {
-
+    const {simu, simu2} = this.props;
+ 
     const options = {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
     }
 
     const icon = {
-        // url: 'https://images.vexels.com/media/users/3/154573/isolated/preview/bd08e000a449288c914d851cb9dae110-hatchback-car-top-view-silhouette-by-vexels.png',
         url: (require('./../../assets/img/icons/common/plane-icon.svg')),
         scaledSize: new window.google.maps.Size(20, 20),
         anchor: { x: 10, y: 10 }
     }
 
+ 
+
     return (
-        
+      <>
+        {/* <p>Welcome, {this.props.simu}</p> */}
+          
         <GoogleMap
-            defaultZoom={2}
-            defaultCenter={{ lat: 0, lng: 0 }}
+          defaultZoom={2}
+          defaultCenter={{ lat: 0, lng: 0 }}
         >
-            {this.state.progress && (
+          
+          {/* {this.getPaths(simu2)} */}
+          
+
+          {this.state.progress && (
             <>
-                <Polyline
-                    path={this.state.progress}
-                    options={{ strokeColor: "#000000 ", geodesic: true  }}
-                />
-                <Marker
-                    position={this.state.progress[this.state.progress.length - 1]}
-                    icon={icon}
-                    // icon={{                        
-                    //     url: (require('./../../assets/img/icons/common/plane-icon.svg'))
-                        
-                    // }}
-                />
+              <Polyline
+                  path={this.state.progress}
+                  options={{ strokeColor: "#000000 ", geodesic: true  }}
+              />
+              <Marker
+                  position={this.state.progress[this.state.progress.length - 1]}
+                  icon={icon}
+              />
             </>
-            )}
+          )}
 
-                <Polyline
-                    path={this.path}
-                    options={{ strokeColor: "#FFFFFF", geodesic: true }}
-                />
+          <Polyline
+            path={this.path}
+            options={{ strokeColor: "#FFFFFF", geodesic: true }}
+          />
 
-            <Marker
-                 position={this.path[0]}
-            />
+          <Marker
+            position={this.path[0]}
+          />
 
-            <Marker
-                 position={this.path[1]}     
-                 icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
-            />
+          <Marker
+            position={this.path[1]}     
+            icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
+          />
 
         </GoogleMap>
-
+      </>
     );
   };
 }
 
-const MapComponent = withScriptjs(withGoogleMap(Map));
+SimuMaps.defaultProps = {
+  simu: [{}],
+  simu2: [{}]
+};
+
+SimuMaps.propTypes = {
+  simu: PropTypes.arrayOf(PropTypes.object),
+  simu2: PropTypes.object
+};
+
+
+const MapComponent = withScriptjs(withGoogleMap(SimuMaps));
 
 export default () => (
   <MapComponent

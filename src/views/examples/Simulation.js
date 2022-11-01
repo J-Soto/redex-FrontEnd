@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 // node.js library that concatenates classes (strings)
 
 // javascipt plugin for creating charts
@@ -12,10 +12,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
 
-
 import Maps2 from "./Maps2";
 import Maps from "./Maps";
-import { GoogleMap, LoadScript, Marker, MarkerClusterer, Polyline  } from '@react-google-maps/api';
+import MapBox from "./Mapbox";
+import MapBoxAirport from './MapBoxAirport';
+import MapBoxVuelos from './MapBoxVuelos';
+
 
 // reactstrap components
 import {
@@ -118,6 +120,7 @@ const options2 = {
 
 
 
+
 // Example 2 of Chart inside src/views/Index.js (Total orders - Card)
 let chartExample2 = {
 	options: {
@@ -151,6 +154,9 @@ let chartExample2 = {
 		},
 	},
 };
+
+var archivo_vuelos;
+
 const useStyles = makeStyles({
 	root: {
 		width: 300,
@@ -160,6 +166,9 @@ const useStyles = makeStyles({
 function valuetext(value) {
 	return `${value}°C`;
 }
+
+let datos = [];
+
 
 class Simulation extends React.Component {
 	constructor(props) {
@@ -198,7 +207,9 @@ class Simulation extends React.Component {
 			airportId: 0,
 			startDate: null,
 			endDate: null,
-			progress: []
+			progress: [],
+			archivoAeropuertos: [],
+			archivoVuelos: []
 		};
 		this.handleChange = this.handleChange.bind(this);
 		this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -435,7 +446,12 @@ class Simulation extends React.Component {
 			body: formData,
 			redirect: "follow",
 		};
-		//console.log("procesando1");
+
+		var requestOptions2 = {
+			method: "GET",
+		};
+
+		console.log("procesando zip");
 		const uploadFileAns = await fetch(
 			"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
 			requestOptions
@@ -443,8 +459,22 @@ class Simulation extends React.Component {
 
 		const uploadFile = await uploadFileAns.json();
 		console.log(uploadFile["resultado"]);
+		
 
 		if (uploadFile["estado"].length < 3) {
+
+			console.log("entro");
+			const simulacion = await fetch(
+				"http://54.163.93.146:8090/dp1/api/airport/flight/all",
+				requestOptions2
+			);
+			
+			archivo_vuelos = await simulacion.json();
+			this.setState({archivoVuelos: archivo_vuelos, archivoAeropuertos: []});
+
+			console.log(archivo_vuelos);	
+			console.log(this.state.archivoVuelos["resultado"].length);	
+
 			let alertMessage = <Alert>El archivo se subió de manera correcta</Alert>;
 
 			const resultIncident = await serviceIncident.getDashboards(true);
@@ -527,6 +557,40 @@ class Simulation extends React.Component {
 			});
 		}
 	};
+	cargarData = async () => {
+
+		var requestOptions = {
+			method: "GET",
+		};
+	
+		console.log("procesando zip");
+		const uploadFileAns = await fetch(
+			"http://54.163.93.146:8090/dp1/api/airport/all",
+			requestOptions
+		);
+	
+		archivo_vuelos = await uploadFileAns.json();
+		this.setState({archivoAeropuertos: archivo_vuelos});
+
+		console.log(archivo_vuelos.resultado);
+
+		if (archivo_vuelos["estado"].length < 3) {
+	
+			console.log("entro");
+		
+		} else {
+			let alertMessage = (
+				<Alert color="primary">No se cargó correctamente la data</Alert>
+			);
+	
+			this.setState({
+				messageConfirmation: alertMessage,
+				loading: false,
+			});
+		}
+	
+	}
+
 	/*componentWillMount = async () => {
     const resultTimeline = await serviceTimeline.getTimeline(
       "20220223",
@@ -694,7 +758,6 @@ class Simulation extends React.Component {
 
 
 
-
 	render() {
 		for (let i = 0; i < this.state.dataTimeLine.length; i++) {
 			this.state.maxTimeLine.push(100);
@@ -824,60 +887,45 @@ class Simulation extends React.Component {
 													</span>
 													<span className="btn-inner--text">Subir</span>
 												</Button>
-											</Col>
-										</Row>
-										<Row>
-											{this.state.loading && <Spinner color="primary" />}
-										</Row>
-										<Row>
-											<h3>Resultado de la simulación</h3>
-										</Row>
-										<br />
-										<Row>
-											<h3>TOP 5 Almacenes ocupados</h3>
-										</Row>
-										<Row>
-											<Col lg="9">
-												<div className="chart">
-													<Bar data={data1} options={chartExample3.options} />
-												</div>
-											</Col>
-											<Col lg="3">
-												<ListGroup>
-													<ListGroupItemHeading>
-														Aeropuertos
-													</ListGroupItemHeading>
-													{this.state.legendChart1.map((airport) => {
-														return (
-															<ListGroupItem>
-																{airport[0]}: {airport[1]}, {airport[2]}
-															</ListGroupItem>
-														);
-													})}
-												</ListGroup>
-											</Col>
-										</Row>
-										<br />
-										<Row>
-											<Col className="text-right">
+
 												<Button
 													className="btn-icon btn-3"
-													color="primary"
+													color="#8395B2"
 													type="button"
-													onClick={this.moreInformationWarehouse}>
+													onClick={this.cargarData}>
 													<span className="btn-inner--icon">
-														<i className="fas fa-eye"></i>
+														<i className="fas fa-plane" />
 													</span>
-													<span className="btn-inner--text">Ver más</span>
+													<span className="btn-inner--text">Ver aeropuertos</span>
 												</Button>
+												
 											</Col>
 										</Row>
-										<br />
 
-										<Row style={{display: "flex", justifyContent: "center" }} >
-											<div style={{ height: "700px" }}>
+										
+										<Row style={{display: "flex", justifyContent: "center", marginTop:"20px", marginBottom: "20px" }} >
+											<div style={{ height: "700px", width: "100%" }}>
+												
+												{this.state.archivoAeropuertos["resultado"] ? 	
 
-												<Maps2/>
+													<MapBoxAirport
+														data = {this.state.archivoAeropuertos["resultado"]}
+													/>
+
+												:
+													<>
+														{this.state.archivoVuelos["resultado"] ?
+															<MapBoxVuelos
+																data = {this.state.archivoVuelos["resultado"]}
+															/>
+														:
+															<MapBox/>
+														}
+													</>
+													
+												}
+
+												
 
 												{/* <LoadScript
 													googleMapsApiKey="AIzaSyCCqt86Lysv0xy9Y3yni3TZkhCNYDVr0UI"
@@ -931,6 +979,59 @@ class Simulation extends React.Component {
 											</div>
 											
 										</Row>
+
+
+
+
+										<Row>
+											{this.state.loading && <Spinner color="primary" />}
+										</Row>
+										<Row>
+											<h3>Resultado de la simulación</h3>
+										</Row>
+										<br />
+										<Row>
+											<h3>TOP 5 Almacenes ocupados</h3>
+										</Row>
+										<Row>
+											<Col lg="9">
+												<div className="chart">
+													<Bar data={data1} options={chartExample3.options} />
+												</div>
+											</Col>
+											<Col lg="3">
+												<ListGroup>
+													<ListGroupItemHeading>
+														Aeropuertos
+													</ListGroupItemHeading>
+													{this.state.legendChart1.map((airport) => {
+														return (
+															<ListGroupItem>
+																{airport[0]}: {airport[1]}, {airport[2]}
+															</ListGroupItem>
+														);
+													})}
+												</ListGroup>
+											</Col>
+										</Row>
+										<br />
+										<Row>
+											<Col className="text-right">
+												<Button
+													className="btn-icon btn-3"
+													color="primary"
+													type="button"
+													onClick={this.moreInformationWarehouse}>
+													<span className="btn-inner--icon">
+														<i className="fas fa-eye"></i>
+													</span>
+													<span className="btn-inner--text">Ver más</span>
+												</Button>
+											</Col>
+										</Row>
+										<br />
+
+										
 
 
 										{this.state.moreInfoWarehouses ? (
