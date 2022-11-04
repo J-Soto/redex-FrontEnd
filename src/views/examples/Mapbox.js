@@ -19,7 +19,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VybnV0ZWh6IiwiYSI6ImNsOXVuYjMzMzAwNG8zdWxhY
 
 
 const MapBox = ({data}) => {
-
+    const mapBox = useRef(null);
     const mapContainer = useRef(null);
     const [lng, setLng] = useState(10);
     const [lat, setLat] = useState(25);
@@ -33,16 +33,20 @@ const MapBox = ({data}) => {
             setProjection('mercator')
         }       
     };
+   
 
 
     useEffect(() => {
-     
-        const mapBox = new mapboxgl.Map({
+        if(mapBox.current) return;
+        mapBox.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/dark-v10',
+            style: 'mapbox://styles/mapbox/streets-v11',
             center: [lng, lat],
-            zoom: zoom
+            zoom: zoom,
+            dragRotate: false
         });
+
+        mapBox.current.setRenderWorldCopies(false);
         
     });
 

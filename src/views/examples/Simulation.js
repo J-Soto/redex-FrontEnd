@@ -12,11 +12,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
 
-import Maps2 from "./Maps2";
-import Maps from "./Maps";
 import MapBox from "./Mapbox";
 import MapBoxAirport from './MapBoxAirport';
 import MapBoxVuelos from './MapBoxVuelos';
+import MapBoxVuelos2 from './MapBoxVuelos2';
 
 
 // reactstrap components
@@ -827,7 +826,7 @@ class Simulation extends React.Component {
 			optionCities = [];
 		if (countries.length > 0) {
 			optionItems = countries.map((country) => (
-				<option value={country["id"]}>{country["name"]}</option>
+				<option  key={country["id"]} value={country["id"]}>{country["name"]}</option>
 			));
 		}
 		if (this.state.cities.length > 0) {
@@ -915,8 +914,8 @@ class Simulation extends React.Component {
 												:
 													<>
 														{this.state.archivoVuelos["resultado"] ?
-															<MapBoxVuelos
-																data = {this.state.archivoVuelos["resultado"]}
+															<MapBoxVuelos2
+																dataVuelos = {this.state.archivoVuelos["resultado"]}
 															/>
 														:
 															<MapBox/>

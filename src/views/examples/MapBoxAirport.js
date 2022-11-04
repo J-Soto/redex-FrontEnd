@@ -20,6 +20,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VybnV0ZWh6IiwiYSI6ImNsOXVuYjMzMzAwNG8zdWxhY
 
 const MapBox = ({data}) => {
 
+    const mapBox = useRef(null);
     const mapContainer = useRef(null);
     const [lng, setLng] = useState(10);
     const [lat, setLat] = useState(25);
@@ -37,13 +38,16 @@ const MapBox = ({data}) => {
 
     useEffect(() => {
      
-        const mapBox = new mapboxgl.Map({
+        if(mapBox.current) return;
+        mapBox.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/dark-v10',
+            style: 'mapbox://styles/mapbox/streets-v11',
             center: [lng, lat],
             zoom: zoom,
-            projection: projection
+            dragRotate: false
         });
+
+        mapBox.current.setRenderWorldCopies(false);
 
         data.forEach((airport) =>{
 
@@ -56,7 +60,7 @@ const MapBox = ({data}) => {
                         `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
                     )
                 )
-                .addTo(mapBox);
+                .addTo(mapBox.current);
             }else{
                 if(airport.city.country.continent.id === 2){
                     new mapboxgl.Marker({ color: '#8395B2' })
@@ -67,7 +71,7 @@ const MapBox = ({data}) => {
                             `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
                         )
                     )
-                    .addTo(mapBox);         
+                    .addTo(mapBox.current);         
                 }else{
                     new mapboxgl.Marker({ color: '#85DD86' })
                     .setLngLat([airport.longitude, airport.latitude])
@@ -77,15 +81,15 @@ const MapBox = ({data}) => {
                             `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
                         )
                     )
-                    .addTo(mapBox); 
+                    .addTo(mapBox.current); 
                 }                      
             }           
             
         })
 
-        mapBox.addControl(new mapboxgl.NavigationControl(), "top-right");
+        // mapBox.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-        return () => mapBox.remove();
+        // return () => mapBox.remove();
 
     });
 
