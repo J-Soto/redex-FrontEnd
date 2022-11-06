@@ -36,15 +36,16 @@ const MapBox = ({data}) => {
     };
 
 
-    useEffect(() => {
-     
+    useEffect(() => {    
+
         if(mapBox.current) return;
         mapBox.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [lng, lat],
             zoom: zoom,
-            dragRotate: false
+            dragRotate: false,
+            projection: projection
         });
 
         mapBox.current.setRenderWorldCopies(false);
@@ -104,7 +105,7 @@ const MapBox = ({data}) => {
                         className="btn-icon btn-3"
                         color="dark"
                         type="button"
-                        onClick={changeProjection}>
+                        onClick={() => changeProjection()}>
                         <span className="btn-inner--icon">
                             <i className="fas fa-eye" />
                         </span>

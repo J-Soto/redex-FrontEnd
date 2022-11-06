@@ -6,8 +6,8 @@ function ClockTime({setCurrentTime}) {
     setCurrentTime(dateState);
 
     useEffect(() => {
-           setInterval(() => setDateState(new Date()), 1500);
-           setCurrentTime(dateState);
+        setInterval(() => setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))), 1500);
+        setCurrentTime(dateState);
     }, []);
 
     return (
@@ -17,7 +17,7 @@ function ClockTime({setCurrentTime}) {
              {dateState.toLocaleString('es-PE', {
                 hour: 'numeric',
                 minute: 'numeric',
-                hour12: true,
+                hour12: false,
             })}
             </p>
         </div>
