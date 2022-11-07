@@ -220,6 +220,7 @@ class Simulation extends React.Component {
 		//this.handleChangeSimulation = this.handleChangeSimulation.bind(this);
 		this.queryTimelineMoment = this.queryTimelineMoment.bind(this);
 		this.simulatebyAirport = this.simulatebyAirport.bind(this);
+		this.orderFlights = this.orderFlights.bind(this);
 		if (window.Chart) {
 			parseOptions(Chart, chartOptions());
 		}
@@ -430,6 +431,26 @@ class Simulation extends React.Component {
 			}
 		}
 	};
+
+	orderFlights = () => {
+		var length=this.state.archivoVuelos["resultado"].length;
+		var orderedFlights = this.state.archivoVuelos["resultado"];
+		for(var i=0; i<length; i++){
+			for(var j=0;j<length-1-i;j++){
+				if(this.state.archivoVuelos["resultado"][j].takeOffTime>this.state.archivoVuelos["resultado"][j+1].takeOffTime){
+					this.state.archivoVuelos["resultado"]=this.exchangePos(this.state.archivoVuelos["resultado"],j);
+				}
+			}
+		}
+	}
+
+	exchangePos = (orderedFlights,j) => {
+		var posJ=orderedFlights[j];
+		orderedFlights[j]=orderedFlights[j+1]
+		orderedFlights[j+1]=posJ;
+		return orderedFlights;
+	}
+
 	submitFile = async () => {
 		//const fileInput = data.querySelector('#packs.generado.20220607') ;
 		this.setState({ loading: true });
@@ -470,8 +491,9 @@ class Simulation extends React.Component {
 			
 			archivo_vuelos = await simulacion.json();
 			this.setState({archivoVuelos: archivo_vuelos, archivoAeropuertos: []});
-
-			console.log(archivo_vuelos);	
+			console.log("aqui",archivo_vuelos);
+			this.orderFlights();
+			//console.log("ordenado",archivo_vuelos);	
 			console.log(this.state.archivoVuelos["resultado"].length);	
 
 			let alertMessage = <Alert>El archivo se subió de manera correcta</Alert>;
