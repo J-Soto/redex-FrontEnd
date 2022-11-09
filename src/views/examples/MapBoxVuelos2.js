@@ -134,23 +134,30 @@ const MapBox = ({dataVuelos}) => {
     const animate = (featureIdx, cntr, time) => {
 
         setTimeout(() => {
-            if (
-                cntr >= mapBox.current.getSource("route"+featureIdx)._data.features[0].geometry.coordinates.length - 1
-            ) {
-                if(mapBox.current.getLayer("route"+featureIdx)){
-                    mapBox.current.removeLayer("route"+featureIdx);
-                }
-                if(mapBox.current.getLayer("point"+featureIdx)){
-                    mapBox.current.removeLayer("point"+featureIdx);
-                }
-                if(mapBox.current.getSource("route"+featureIdx)){
-                    mapBox.current.removeSource("route"+featureIdx);
-                }
-                if(mapBox.current.getSource("point"+featureIdx)){
-                    mapBox.current.removeSource("point"+featureIdx);
-                }
+
+            if (!mapBox.current.getLayer("route"+featureIdx)){
                 return;
+            }else{
+                if (
+                    cntr >= mapBox.current.getSource("route"+featureIdx)._data.features[0].geometry.coordinates.length - 1
+                ) {
+                    if(mapBox.current.getLayer("route"+featureIdx)){
+                        mapBox.current.removeLayer("route"+featureIdx);
+                    }
+                    if(mapBox.current.getLayer("point"+featureIdx)){
+                        mapBox.current.removeLayer("point"+featureIdx);
+                    }
+                    if(mapBox.current.getSource("route"+featureIdx)){
+                        mapBox.current.removeSource("route"+featureIdx);
+                    }
+                    if(mapBox.current.getSource("point"+featureIdx)){
+                        mapBox.current.removeSource("point"+featureIdx);
+                    }
+                    return;
+                }
             }
+
+            
 
             mapBox.current.getSource("point"+featureIdx)._options.data.features[0].geometry.coordinates = mapBox.current.getSource("route"+featureIdx)._data.features[0].geometry.coordinates[cntr];
             
