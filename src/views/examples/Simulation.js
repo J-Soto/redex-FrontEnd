@@ -491,10 +491,10 @@ class Simulation extends React.Component {
 			
 			archivo_vuelos = await simulacion.json();
 			this.setState({archivoVuelos: archivo_vuelos, archivoAeropuertos: []});
-			console.log("aqui",archivo_vuelos);
-			this.orderFlights();
-			//console.log("ordenado",archivo_vuelos);	
-			console.log(this.state.archivoVuelos["resultado"].length);	
+			// console.log("aqui",archivo_vuelos);
+			// this.orderFlights();
+			// //console.log("ordenado",archivo_vuelos);	
+			// console.log(this.state.archivoVuelos["resultado"].length);	
 
 			let alertMessage = <Alert>El archivo se subió de manera correcta</Alert>;
 
