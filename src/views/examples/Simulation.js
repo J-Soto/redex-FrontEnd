@@ -206,10 +206,13 @@ class Simulation extends React.Component {
 			airportId: 0,
 			startDate: null,
 			endDate: null,
+			startDateSimu: null,
+			endDateSimu: null,
 			progress: [],
 			archivoAeropuertos: [],
 			archivoVuelos: []
 		};
+		
 		this.handleChange = this.handleChange.bind(this);
 		this.handleChangeCountry = this.handleChangeCountry.bind(this);
 		this.handleChangeCity = this.handleChangeCity.bind(this);
@@ -225,7 +228,7 @@ class Simulation extends React.Component {
 			parseOptions(Chart, chartOptions());
 		}
 	}
-
+	
 	handleChange = (event) => {
 		this.setState({
 			[event.target.name]: event.target.value,
@@ -297,7 +300,7 @@ class Simulation extends React.Component {
 			});
 		}
 	};
-
+	
 	handleChangeCountry = async (event) => {
 		let idCountry = event.target.value;
 		if (idCountry != 0) {
@@ -780,6 +783,7 @@ class Simulation extends React.Component {
 
 
 	render() {
+		console.log("fechas",this.state.startDateSimu,this.state.endDateSimu)
 		for (let i = 0; i < this.state.dataTimeLine.length; i++) {
 			this.state.maxTimeLine.push(100);
 		}
@@ -897,6 +901,111 @@ class Simulation extends React.Component {
 										<Row>{this.state.messageConfirmation}</Row>
 
 										<Row>
+											<Col lg="4">
+												{/*incluir fechas de inicio y fin de simu*/}
+												<FormGroup>
+													<label className="form-control-label">
+														Fecha de inicio
+													</label>
+													<InputGroup className="input-group-alternative">
+														<InputGroupAddon addonType="prepend">
+															<InputGroupText>
+																<i className="ni ni-calendar-grid-58" />
+															</InputGroupText>
+														</InputGroupAddon>
+														<ReactDatetime
+															inputProps={{
+																placeholder: "Seleccionar fecha",
+															}}
+															timeFormat={false}
+															renderDay={(props, currentDate, selectedDate) => {
+																let classes = props.className;
+																if (
+																	this.state.startDateSimu &&
+																	this.state.endDateSimu &&
+																	this.state.startDateSimu._d + "" ===
+																		currentDate._d + ""
+																) {
+																	classes += " start-date";
+																} else if (
+																	this.state.startDateSimu &&
+																	this.state.endDateSimu &&
+																	new Date(this.state.startDateSimu._d + "") <
+																		new Date(currentDate._d + "") &&
+																	new Date(this.state.endDateSimu._d + "") >
+																		new Date(currentDate._d + "")
+																) {
+																	classes += " middle-date";
+																} else if (
+																	this.state.endDateSimu &&
+																	this.state.endDateSimu._d + "" ===
+																		currentDate._d + ""
+																) {
+																	classes += " end-date";
+																}
+																return (
+																	<td {...props} className={classes}>
+																		{currentDate.date()}
+																	</td>
+																);
+															}}
+															onChange={(e) => this.setState({ startDateSimu: e })}
+														/>
+													</InputGroup>
+												</FormGroup>
+											</Col>
+											<Col lg="4">
+												<FormGroup>
+													<label className="form-control-label">
+														Fecha de fin
+													</label>
+													<InputGroup className="input-group-alternative">
+														<InputGroupAddon addonType="prepend">
+															<InputGroupText>
+																<i className="ni ni-calendar-grid-58" />
+															</InputGroupText>
+														</InputGroupAddon>
+														<ReactDatetime
+															inputProps={{
+																placeholder: "Seleccionar fecha",
+															}}
+															timeFormat={false}
+															renderDay={(props, currentDate, selectedDate) => {
+																let classes = props.className;
+																if (
+																	this.state.Simu &&
+																	this.state.endDateSimu &&
+																	this.state.startDateSimu._d + "" ===
+																		currentDate._d + ""
+																) {
+																	classes += " start-date";
+																} else if (
+																	this.state.startDateSimu &&
+																	this.state.endDateSimu &&
+																	new Date(this.state.startDateSimu._d + "") <
+																		new Date(currentDate._d + "") &&
+																	new Date(this.state.endDateSimu._d + "") >
+																		new Date(currentDate._d + "")
+																) {
+																	classes += " middle-date";
+																} else if (
+																	this.state.endDateSimu &&
+																	this.state.endDateSimu._d + "" ===
+																		currentDate._d + ""
+																) {
+																	classes += " end-date";
+																}
+																return (
+																	<td {...props} className={classes}>
+																		{currentDate.date()}
+																	</td>
+																);
+															}}
+															onChange={(e) => this.setState({ endDateSimu: e })}
+														/>
+													</InputGroup>
+												</FormGroup>
+											</Col>
 											<Col className="text-right">
 												<Button
 													className="btn-icon btn-3"
@@ -938,6 +1047,8 @@ class Simulation extends React.Component {
 														{this.state.archivoVuelos["resultado"] ?
 															<MapBoxVuelos2
 																dataVuelos = {this.state.archivoVuelos["resultado"]}
+																startDate={this.state.startDateSimu._d}
+																endDate={this.state.endDateSimu._d}
 															/>
 														:
 															<MapBox/>

@@ -13,7 +13,7 @@ mapboxgl.workerClass = MapboxWorker;
 
 
 
-const MapBox = ({dataVuelos}) => {
+const MapBox = ({dataVuelos,startDate,endDate}) => {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VybnV0ZWh6IiwiYSI6ImNsOXVuYjMzMzAwNG8zdWxhY2dlZzJhMzEifQ.rEKkvxvnjNKLc5Q8uSlZ1A';
 
@@ -22,12 +22,15 @@ const MapBox = ({dataVuelos}) => {
     const [lng, setLng] = useState(10);
     const [lat, setLat] = useState(25);
     const [zoom, setZoom] = useState(1.2);
-    const [currentTime, setCurrentTime] = useState(new Date())
+    //const [currentTime, setCurrentTime] = useState(new Date())
+    const [currentTime, setCurrentTime] = useState(startDate)
     const [counterFlight, setCounterFlight] = useState(-1);
     const [vuelos, setVuelos] = useState([]);
 
     var cantVuelos = 10;
     var steps = 100;
+
+    console.log("fechas",startDate,currentTime);
 
     const addFlight = () => { 
         let featureIdx = 0
@@ -319,7 +322,7 @@ const MapBox = ({dataVuelos}) => {
     return(
         <div>
 
-           <ClockTime setCurrentTime={setCurrentTime}/>
+           <ClockTime setCurrentTime={setCurrentTime} startDate={startDate}/>
 
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginBottom: "10px" }} />
         </div>

@@ -936,6 +936,9 @@ export default function Simulation2(){
                                     <Row>{data.messageConfirmation}</Row>
 
                                     <Row>
+
+                                        
+
                                         <Col className="text-right">
                                             <Button
                                                 className="btn-icon btn-3"
