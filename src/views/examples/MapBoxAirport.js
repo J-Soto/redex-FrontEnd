@@ -1,12 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import ReactDOM from "react-dom";
-
-import {	
-	Button,
-	Row,
-	Col	
-} from "reactstrap";
-
+import AirportImage from '../../assets/img/icons/common/Airport.png'
 import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 import 'mapbox-gl/dist/mapbox-gl.css'; 
 
@@ -48,12 +41,32 @@ const MapBox = ({data}) => {
             projection: projection
         });
 
+        mapBox.current.loadImage(AirportImage,
+            (error, image) => {
+            if (error) throw error;
+              
+            // Add the image to the map style.
+            mapBox.current.addImage('airport', image, {
+              "sdf": "true"
+            });
+          }
+        );
+
         mapBox.current.setRenderWorldCopies(false);
 
         data.forEach((airport) =>{
+            let arrayHtml = [];
 
             if(airport.city.country.continent.id === 1){
-                new mapboxgl.Marker({ color: 'red' })
+                arrayHtml.push(document.createElement("div"));
+                arrayHtml[0].className = "marker";
+                arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
+                arrayHtml[0].style.width = `30px`;
+                arrayHtml[0].style.height = `30px`;
+                arrayHtml[0].style.backgroundSize = "100%";
+                arrayHtml[0].style.filter = "invert(21%) sepia(79%) saturate(6123%) hue-rotate(355deg) brightness(92%) contrast(116%)";    
+
+                new mapboxgl.Marker(arrayHtml[0])
                 .setLngLat([airport.longitude, airport.latitude])
                 .setPopup(
                     new mapboxgl.Popup({ offset: 25 }) // add popups
@@ -64,7 +77,16 @@ const MapBox = ({data}) => {
                 .addTo(mapBox.current);
             }else{
                 if(airport.city.country.continent.id === 2){
-                    new mapboxgl.Marker({ color: '#8395B2' })
+                    arrayHtml.push(document.createElement("div"));
+                    arrayHtml[0].className = "marker";
+                    arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
+                    arrayHtml[0].style.width = `30px`;
+                    arrayHtml[0].style.height = `30px`;
+                    arrayHtml[0].style.backgroundSize = "100%";
+                    arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
+    
+
+                    new mapboxgl.Marker(arrayHtml[0])
                     .setLngLat([airport.longitude, airport.latitude])
                     .setPopup(
                         new mapboxgl.Popup({ offset: 25 }) // add popups
@@ -97,25 +119,9 @@ const MapBox = ({data}) => {
 
    
     return(
-        <div>
-
-            <Row>
-                <Col className="text-right">
-                    <Button
-                        className="btn-icon btn-3"
-                        color="dark"
-                        type="button"
-                        onClick={() => changeProjection()}>
-                        <span className="btn-inner--icon">
-                            <i className="fas fa-eye" />
-                        </span>
-                        <span className="btn-inner--text">Proyección</span>
-                    </Button>                    
-                </Col>
-            </Row>
-
+        <>
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginTop: "10px" }} />
-        </div>
+        </>
     )
 }
 

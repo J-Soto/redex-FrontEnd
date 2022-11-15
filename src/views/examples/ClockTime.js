@@ -6,8 +6,13 @@ function ClockTime({setCurrentTime,startDate}) {
     setCurrentTime(dateState);
 
     useEffect(() => {
-        setInterval(() => setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))), 1500);
-        setCurrentTime(dateState);
+        // console.log(dateState.getDate())
+        // console.log(startDate.getDate()+4)
+        if(dateState.getDate() < startDate.getDate()+4){
+            setInterval(() => setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))), 1500);
+            setCurrentTime(dateState);
+        }
+        
     }, []);
 
     return (

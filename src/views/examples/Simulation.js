@@ -174,6 +174,7 @@ class Simulation extends React.Component {
 		super(props);
 		this.state = {
 			messageConfirmation: [],
+			messageConfirmation1: [],
 			fileSelection: [],
 			infoModal: [],
 			stateModal: false,
@@ -435,16 +436,24 @@ class Simulation extends React.Component {
 		}
 	};
 
-	orderFlights = () => {
-		var length=this.state.archivoVuelos["resultado"].length;
-		var orderedFlights = this.state.archivoVuelos["resultado"];
+	orderFlights = (archivo_vuelos) => {
+		var length=archivo_vuelos.length;
+		var orderedFlights = archivo_vuelos;
 		for(var i=0; i<length; i++){
 			for(var j=0;j<length-1-i;j++){
-				if(this.state.archivoVuelos["resultado"][j].takeOffTime>this.state.archivoVuelos["resultado"][j+1].takeOffTime){
-					this.state.archivoVuelos["resultado"]=this.exchangePos(this.state.archivoVuelos["resultado"],j);
+				if(archivo_vuelos[j].takeOffTime>archivo_vuelos[j+1].takeOffTime){
+					archivo_vuelos=this.exchangePos(archivo_vuelos,j);
 				}
 			}
 		}
+
+		let counter = 0;
+		archivo_vuelos.forEach((element) => {element.id = counter; counter = counter+1})
+		
+		// console.log(archivo_vuelos);
+		this.setState({archivoVuelos: archivo_vuelos, archivoAeropuertos: []});
+		console.log(this.state.archivoVuelos);
+		console.log(this.state.archivoVuelos.length);
 	}
 
 	exchangePos = (orderedFlights,j) => {
@@ -474,113 +483,189 @@ class Simulation extends React.Component {
 			method: "GET",
 		};
 
-		console.log("procesando zip");
-		const uploadFileAns = await fetch(
-			"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
-			requestOptions
-		);
 
-		const uploadFile = await uploadFileAns.json();
-		console.log(uploadFile["resultado"]);
-		
+		let uploadFile;
 
-		if (uploadFile["estado"].length < 3) {
 
-			console.log("entro");
-			const simulacion = await fetch(
-				"http://54.163.93.146:8090/dp1/api/airport/flight/all",
-				requestOptions2
-			);
+		if (this.state.startDateSimu != null && this.state.endDateSimu != null){
 			
-			archivo_vuelos = await simulacion.json();
-			this.setState({archivoVuelos: archivo_vuelos, archivoAeropuertos: []});
-			// console.log("aqui",archivo_vuelos);
-			// this.orderFlights();
-			// //console.log("ordenado",archivo_vuelos);	
-			// console.log(this.state.archivoVuelos["resultado"].length);	
+			this.setState({
+				messageConfirmation1: [],
+				loading: true,
+			});
+			
 
-			let alertMessage = <Alert>El archivo se subió de manera correcta</Alert>;
+			console.log("procesando zip");
+			const uploadFileAns = await fetch(
+				"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
+				requestOptions
+			);
+	
+			uploadFile = await uploadFileAns.json();
+			console.log(uploadFile["resultado"]);
 
-			const resultIncident = await serviceIncident.getDashboards(true);
-			let dataChart1 = [],
-				labelsChart1 = [],
-				legendChart1 = [],
-				dataChart2 = [],
-				labelsChart2 = [],
-				legendChart2 = [];
-			if (resultIncident["estado"].length < 3) {
-				resultIncident["resultado"]["byairports"].map((airport) => {
-					dataChart1.push(airport["count"]);
-					labelsChart1.push(airport["code"]);
-					legendChart1.push([
-						airport["code"],
-						airport["city"],
-						airport["country"],
-					]);
-				});
 
-				resultIncident["resultado"]["byflightplans"].map((flight) => {
-					dataChart2.push(flight["count"]);
-					labelsChart2.push(flight["idFlight"]);
-					legendChart2.push([
-						flight["idFlight"],
-						flight["cityOrigin"],
-						flight["countryOrigin"],
-						flight["cityDestiny"],
-						flight["countryDestiny"],
-					]);
-				});
+			if (uploadFile["estado"].length < 3) {
 
-				this.setState({
-					messageConfirmation: alertMessage,
-					loading: false,
-					loaded: true,
-					dataChart1: dataChart1,
-					labelsChart1: labelsChart1,
-					legendChart1: legendChart1,
-					dataChart2: dataChart2,
-					labelsChart2: labelsChart2,
-					legendChart2: legendChart2,
-					dataChart3: resultIncident["resultado"]["summaryCase"],
-				});
+				console.log("entro");
+				const simulacion = await fetch(
+					"http://54.163.93.146:8090/dp1/api/airport/flight/all",
+					requestOptions2
+				);
+				
+				archivo_vuelos = await simulacion.json();
+				
+				let counter = 0;
+
+				if(archivo_vuelos["resultado"].length>0){
+					console.log("HOLA");
+
+					let takeOff, arrival, takeOff_hh, takeOff_mi, arrival_hh, arrival_mi, duracionH, duracionM, duracionT;
+					let vuelosDatos = [];
+					let takeOff_hh_utc0, arrival_hh_utc0, utc0P, utc0D, caltakeOffTime;
+
+					archivo_vuelos["resultado"].forEach((element) => {
+						takeOff = new Date();
+						[takeOff_hh,takeOff_mi] = element.takeOffTime.split(/[/:\-T]/);       
+						arrival = new Date();            
+						[arrival_hh,arrival_mi] = element.arrivalTime.split(/[/:\-T]/); 
+						
+						utc0P = element.takeOffAirport.city.country.utc;
+						takeOff_hh_utc0 = (takeOff_hh - utc0P > 24) ? takeOff_hh - utc0P - 24 : (takeOff_hh - utc0P > 0) ? takeOff_hh - utc0P : 24 - takeOff_hh - utc0P;
+						utc0D = element.arrivalAirport.city.country.utc;
+						arrival_hh_utc0 = (arrival_hh - utc0D > 24) ? arrival_hh - utc0D - 24 : (arrival_hh - utc0D > 0) ? arrival_hh - utc0D : 24 - arrival_hh - utc0D;
+						
+						caltakeOffTime = parseInt(takeOff_hh_utc0*100 + parseInt(takeOff_mi));
+						duracionH = (takeOff_hh > arrival_hh) ? (24-takeOff_hh+arrival_hh)*60 : (arrival_hh-takeOff_hh)*60;
+						duracionM = (takeOff_mi > arrival_mi) ? (60-takeOff_mi+arrival_mi) : (arrival_mi-takeOff_mi);
+						duracionT = Math.round(((duracionH + duracionM)*1.6/10));
+
+						vuelosDatos.push({
+							takeOffAirportLo: element.takeOffAirport.longitude,
+							takeOffAirportLa: element.takeOffAirport.latitude,
+							takeOffAirportD: element.takeOffAirport.description,
+							arrivalAirportLo: element.arrivalAirport.longitude,
+							arrivalAirportLa: element.arrivalAirport.latitude,
+							arrivalAirportD: element.arrivalAirport.description,
+							fechaPartida: takeOff,
+							hP: takeOff_hh,
+							hP0: takeOff_hh_utc0,
+							mP: takeOff_mi,
+							fechaDestino: arrival,    
+							hD: arrival_hh,
+							hD0: arrival_hh_utc0,
+							mD: arrival_mi,
+							capacidad: element.capacity,       
+							// id: counter,
+							duracion: duracionT,
+							takeOffTime: caltakeOffTime,
+							idReal:  element.idFlight
+						});
+
+						counter = counter + 1;
+
+					});
+
+					this.orderFlights(vuelosDatos); 
+				}
+
+	
+				let alertMessage = <Alert>El archivo se subió de manera correcta</Alert>;
+	
+				const resultIncident = await serviceIncident.getDashboards(true);
+				let dataChart1 = [],
+					labelsChart1 = [],
+					legendChart1 = [],
+					dataChart2 = [],
+					labelsChart2 = [],
+					legendChart2 = [];
+				if (resultIncident["estado"].length < 3) {
+					resultIncident["resultado"]["byairports"].map((airport) => {
+						dataChart1.push(airport["count"]);
+						labelsChart1.push(airport["code"]);
+						legendChart1.push([
+							airport["code"],
+							airport["city"],
+							airport["country"],
+						]);
+					});
+	
+					resultIncident["resultado"]["byflightplans"].map((flight) => {
+						dataChart2.push(flight["count"]);
+						labelsChart2.push(flight["idFlight"]);
+						legendChart2.push([
+							flight["idFlight"],
+							flight["cityOrigin"],
+							flight["countryOrigin"],
+							flight["cityDestiny"],
+							flight["countryDestiny"],
+						]);
+					});
+	
+					this.setState({
+						messageConfirmation: alertMessage,
+						loading: false,
+						loaded: true,
+						dataChart1: dataChart1,
+						labelsChart1: labelsChart1,
+						legendChart1: legendChart1,
+						dataChart2: dataChart2,
+						labelsChart2: labelsChart2,
+						legendChart2: legendChart2,
+						dataChart3: resultIncident["resultado"]["summaryCase"],
+					});
+				} else {
+					//si hay error porque no hay data
+					this.setState({
+						messageConfirmation: alertMessage,
+						loading: false,
+						loaded: true,
+						dataChart1: [0, 0, 0, 0, 0],
+						labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
+						legendChart1: [
+							["A1", "C1", "P1"],
+							["A2", "C2", "P2"],
+							["A3", "C3", "P3"],
+							["A4", "C4", "P4"],
+							["A5", "C5", "P5"],
+						],
+						dataChart2: [0, 0, 0, 0, 0],
+						labelsChart2: ["V1", "V2", "V3", "V4", "V5"],
+						legendChart2: [
+							["V1", "OC1", "OP1", "DC1", "DP1"],
+							["V2", "OC2", "OP2", "DC2", "DP2"],
+							["V3", "OC3", "OP3", "DC3", "DP3"],
+							["V4", "OC4", "OP4", "DC4", "DP4"],
+							["V5", "OC5", "OP5", "DC5", "DP5"],
+						],
+						dataChart3: { ok: 0, fails: 0, late: 0 },
+					});
+				}
 			} else {
-				//si hay error porque no hay data
+				let alertMessage = (
+					<Alert style={{backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>El archivo no se subió de manera correcta</Alert>
+				);
+	
 				this.setState({
 					messageConfirmation: alertMessage,
 					loading: false,
-					loaded: true,
-					dataChart1: [0, 0, 0, 0, 0],
-					labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
-					legendChart1: [
-						["A1", "C1", "P1"],
-						["A2", "C2", "P2"],
-						["A3", "C3", "P3"],
-						["A4", "C4", "P4"],
-						["A5", "C5", "P5"],
-					],
-					dataChart2: [0, 0, 0, 0, 0],
-					labelsChart2: ["V1", "V2", "V3", "V4", "V5"],
-					legendChart2: [
-						["V1", "OC1", "OP1", "DC1", "DP1"],
-						["V2", "OC2", "OP2", "DC2", "DP2"],
-						["V3", "OC3", "OP3", "DC3", "DP3"],
-						["V4", "OC4", "OP4", "DC4", "DP4"],
-						["V5", "OC5", "OP5", "DC5", "DP5"],
-					],
-					dataChart3: { ok: 0, fails: 0, late: 0 },
 				});
 			}
-		} else {
+
+		}else{
 			let alertMessage = (
-				<Alert color="primary">El archivo no se subió de manera correcta</Alert>
+				<Alert style={{backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>Falta seleccionar las fechas</Alert>
 			);
 
 			this.setState({
-				messageConfirmation: alertMessage,
+				messageConfirmation1: alertMessage,
 				loading: false,
 			});
 		}
+
+		
 	};
+
 	cargarData = async () => {
 
 		var requestOptions = {
@@ -613,7 +698,14 @@ class Simulation extends React.Component {
 			});
 		}
 	
+	};
+
+	limpiarData = async () => {
+		if(this.state.archivoAeropuertos){
+			this.setState({archivoAeropuertos: []});
+		}
 	}
+
 
 	/*componentWillMount = async () => {
     const resultTimeline = await serviceTimeline.getTimeline(
@@ -783,7 +875,7 @@ class Simulation extends React.Component {
 
 
 	render() {
-		console.log("fechas",this.state.startDateSimu,this.state.endDateSimu)
+		
 		for (let i = 0; i < this.state.dataTimeLine.length; i++) {
 			this.state.maxTimeLine.push(100);
 		}
@@ -898,9 +990,9 @@ class Simulation extends React.Component {
 											</Col>
 											<Col lg="6"></Col>
 										</Row>
-										<Row>{this.state.messageConfirmation}</Row>
+										<Row style={{marginLeft: "2px"}}>{this.state.messageConfirmation}</Row>
 
-										<Row>
+										<Row style={{display: "flex", alignItems: "center" }}>
 											<Col lg="4">
 												{/*incluir fechas de inicio y fin de simu*/}
 												<FormGroup>
@@ -1017,21 +1109,35 @@ class Simulation extends React.Component {
 													</span>
 													<span className="btn-inner--text">Subir</span>
 												</Button>
-
-												<Button
-													className="btn-icon btn-3"
-													color="#8395B2"
-													type="button"
-													onClick={this.cargarData}>
-													<span className="btn-inner--icon">
-														<i className="fas fa-plane" />
-													</span>
-													<span className="btn-inner--text">Ver aeropuertos</span>
-												</Button>
 												
+												{this.state.archivoAeropuertos["resultado"] ? 
+												
+													<Button
+														className="btn-icon btn-3"
+														color="#8395B2"
+														type="button"
+														onClick={this.limpiarData}>
+														<span className="btn-inner--icon">
+															<i className="fas fa-backward"></i>
+														</span>
+														<span className="btn-inner--text">Volver</span>
+													</Button>
+
+												:															
+													<Button
+														className="btn-icon btn-3"
+														color="#8395B2"
+														type="button"
+														onClick={this.cargarData}>
+														<span className="btn-inner--icon">
+															<i className="fas fa-plane" />
+														</span>
+														<span className="btn-inner--text">Ver aeropuertos</span>
+													</Button>
+												}
 											</Col>
 										</Row>
-
+										<Row style={{marginLeft: "2px"}}>{this.state.messageConfirmation1}</Row>
 										
 										<Row style={{display: "flex", justifyContent: "center", marginTop:"20px", marginBottom: "20px" }} >
 											<div style={{ height: "700px", width: "100%" }}>
@@ -1044,9 +1150,9 @@ class Simulation extends React.Component {
 
 												:
 													<>
-														{this.state.archivoVuelos["resultado"] ?
+														{this.state.archivoVuelos.length ?
 															<MapBoxVuelos2
-																dataVuelos = {this.state.archivoVuelos["resultado"]}
+																dataVuelos = {this.state.archivoVuelos}
 																startDate={this.state.startDateSimu._d}
 																endDate={this.state.endDateSimu._d}
 															/>
@@ -1055,57 +1161,7 @@ class Simulation extends React.Component {
 														}
 													</>
 													
-												}
-
-												
-
-												{/* <LoadScript
-													googleMapsApiKey="AIzaSyCCqt86Lysv0xy9Y3yni3TZkhCNYDVr0UI"
-												>
-													<GoogleMap
-														mapContainerStyle={containerStyle}
-														// center={center}
-														center={{lat: 18.559008, lng: -68.388881}}
-														zoom={16}
-													>
-
-													<Marker
-														icon={"https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"}
-														position={center1}
-													/>
-
-
-													{this.state.progress && (
-														<>
-														
-															<Polyline
-																path={this.state.progress}
-																options={{ strokeColor: "#FF0000 " }}
-															/>
-
-															<Marker
-																position={this.state.progress[this.state.progress.length - 1]}
-															/>
-														
-														</>)
-													}
-
-													<Polyline	
-														path={locations}
-														options={options2}
-													/>
-													
-
-													<MarkerClusterer options={options}>
-														{(clusterer) =>
-															locations.map((location) => (
-															<Marker key={createKey(location)} position={location} clusterer={clusterer} />
-															))
-														}
-													</MarkerClusterer>
-													
-													</GoogleMap>
-												</LoadScript> */}
+												}											
 
 
 											</div>

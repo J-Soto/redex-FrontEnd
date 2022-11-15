@@ -6,6 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import * as turf from '@turf/turf';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ClockTime from './ClockTime';
+import { couldStartTrivia } from "typescript";
 
 mapboxgl.workerClass = MapboxWorker;
 
@@ -26,19 +27,16 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
     const [currentTime, setCurrentTime] = useState(startDate)
     const [counterFlight, setCounterFlight] = useState(-1);
     const [vuelos, setVuelos] = useState([]);
+    const [cargado, setCargado] = useState(0);
 
-    var cantVuelos = 10;
+    var cantVuelos = 50;
     var steps = 100;
 
-    console.log("fechas",startDate,currentTime);
-
+    
     const addFlight = () => { 
-        let featureIdx = 0
 
         vuelos.forEach((vuelo) =>{
-
-            // console.log(vuelo);
-
+            console.log("CARGANDO");
             const route = {
                 type: 'FeatureCollection',
                 features: [
@@ -100,7 +98,7 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                     source: "route"+vuelo.id,
                     type: "line",
                     paint: {
-                        "line-width": 2,
+                        "line-width": 1.5,
                         "line-color": "#007cbf",
                     },
                 });
@@ -116,11 +114,11 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                         "icon-rotation-alignment": "map",
                         "icon-allow-overlap": true,
                         "icon-ignore-placement": true,
-                    },
+                    }
                 });    
     
             })   
-   
+
             mapBox.current.on('mouseenter', 'point'+vuelo.id, (e) => {      
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const description = e.features[0].properties.description;
@@ -197,13 +195,12 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
     });
     
 
-    const orderFlights = () => {
-		var length=dataVuelos.length;
-		var orderedFlights = dataVuelos;
+    const orderFlights = (vuelosDatos) => {
+		var length=vuelosDatos.length;
 		for(var i=0; i<length; i++){
 			for(var j=0;j<length-1-i;j++){
-				if(dataVuelos[j].takeOffTime>dataVuelos[j+1].takeOffTime){
-					dataVuelos=exchangePos(dataVuelos,j);
+				if(vuelosDatos[j].takeOffTime>vuelosDatos[j+1].takeOffTime){
+					vuelosDatos = exchangePos(vuelosDatos,j);
 				}
 			}
 		}
@@ -238,50 +235,58 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
 
     useEffect(() =>{
 
-        orderFlights();  
-
         let counter = 0;
 
         if(dataVuelos.length>0){
-            let takeOff, arrival, takeOff_hh, takeOff_mi, arrival_hh, arrival_mi, duracionH, duracionM, duracionT;
-            let vuelos = [];
+            // let takeOff, arrival, takeOff_hh, takeOff_mi, arrival_hh, arrival_mi, duracionH, duracionM, duracionT;
+            // let vuelosDatos = [];
+            // let takeOff_hh_utc0, arrival_hh_utc0, utc0P, utc0D, caltakeOffTime;
 
-            dataVuelos.forEach((element) => {
-                takeOff = new Date();
-                [takeOff_hh,takeOff_mi] = element.takeOffTime.split(/[/:\-T]/);       
-                arrival = new Date();            
-                [arrival_hh,arrival_mi] = element.arrivalTime.split(/[/:\-T]/); 
+            // dataVuelos.forEach((element) => {
+            //     takeOff = new Date();
+            //     [takeOff_hh,takeOff_mi] = element.takeOffTime.split(/[/:\-T]/);       
+            //     arrival = new Date();            
+            //     [arrival_hh,arrival_mi] = element.arrivalTime.split(/[/:\-T]/); 
                 
-                duracionH = (takeOff_hh > arrival_hh) ? (24-takeOff_hh+arrival_hh)*60 : (arrival_hh-takeOff_hh)*60;
-                duracionM = (takeOff_mi > arrival_mi) ? (60-takeOff_mi+arrival_mi) : (arrival_mi-takeOff_mi);
-                duracionT = Math.round(((duracionH + duracionM)*1.6/10));
+            //     utc0P = element.takeOffAirport.city.country.utc;
+            //     takeOff_hh_utc0 = (takeOff_hh - utc0P > 24) ? takeOff_hh - utc0P - 24 : (takeOff_hh - utc0P > 0) ? takeOff_hh - utc0P : 24 - takeOff_hh - utc0P;
+            //     utc0D = element.arrivalAirport.city.country.utc;
+            //     arrival_hh_utc0 = (arrival_hh - utc0D > 24) ? arrival_hh - utc0D - 24 : (arrival_hh - utc0D > 0) ? arrival_hh - utc0D : 24 - arrival_hh - utc0D;
+                
+            //     caltakeOffTime = parseInt(takeOff_hh_utc0*100 + parseInt(takeOff_mi));
+            //     duracionH = (takeOff_hh > arrival_hh) ? (24-takeOff_hh+arrival_hh)*60 : (arrival_hh-takeOff_hh)*60;
+            //     duracionM = (takeOff_mi > arrival_mi) ? (60-takeOff_mi+arrival_mi) : (arrival_mi-takeOff_mi);
+            //     duracionT = Math.round(((duracionH + duracionM)*1.6/10));
 
-                vuelos.push({
-                    takeOffAirportLo: element.takeOffAirport.longitude,
-                    takeOffAirportLa: element.takeOffAirport.latitude,
-                    takeOffAirportD: element.takeOffAirport.description,
-                    arrivalAirportLo: element.arrivalAirport.longitude,
-                    arrivalAirportLa: element.arrivalAirport.latitude,
-                    arrivalAirportD: element.arrivalAirport.description,
-                    fechaPartida: takeOff,
-                    hP: takeOff_hh,
-                    mP: takeOff_mi,
-                    fechaDestino: arrival,    
-                    hD: arrival_hh,
-                    mD: arrival_mi,
-                    capacidad: element.capacity,       
-                    id: counter,
-                    duracion: duracionT
-                });
+            //     vuelosDatos.push({
+            //         takeOffAirportLo: element.takeOffAirport.longitude,
+            //         takeOffAirportLa: element.takeOffAirport.latitude,
+            //         takeOffAirportD: element.takeOffAirport.description,
+            //         arrivalAirportLo: element.arrivalAirport.longitude,
+            //         arrivalAirportLa: element.arrivalAirport.latitude,
+            //         arrivalAirportD: element.arrivalAirport.description,
+            //         fechaPartida: takeOff,
+            //         hP: takeOff_hh,
+            //         hP0: takeOff_hh_utc0,
+            //         mP: takeOff_mi,
+            //         fechaDestino: arrival,    
+            //         hD: arrival_hh,
+            //         hD0: arrival_hh_utc0,
+            //         mD: arrival_mi,
+            //         capacidad: element.capacity,       
+            //         id: counter,
+            //         duracion: duracionT,
+            //         takeOffTime: caltakeOffTime,
+            //         idReal:  element.idFlight
+            //     });
 
-                counter = counter + 1;
+            //     counter = counter + 1;
 
-            });
-            // vuelos.reverse();
-            // vuelos.splice(0, 300);
-            vuelos.splice(cantVuelos);
-            setVuelos(vuelos);       
-            
+            // });
+
+            // orderFlights(vuelosDatos); 
+            dataVuelos.splice(cantVuelos);
+            setVuelos(dataVuelos);   
             console.log(vuelos);
 
         }
@@ -291,30 +296,68 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
     }, [dataVuelos])
 
     useEffect(() =>{
+        
         if(vuelos.length > 0){
+            console.log(vuelos);
             addFlight();
         }
     }, [vuelos])
 
     useEffect(() =>{
-        if(counterFlight >= 0 && counterFlight < cantVuelos && vuelos.length > 0){
-            let h, m;            
+        if(currentTime.getDate() < startDate.getDate()+4){
+            // console.log(currentTime.getDate());  
+            // console.log(startDate.getDate()+4);  
 
-            (currentTime.getHours() < 10) ?  h = "0" + currentTime.getHours() : h = currentTime.getHours();
-            (currentTime.getMinutes() < 10) ?  m = "0" + currentTime.getMinutes() : m = currentTime.getMinutes();
+            if(counterFlight >= 0 && counterFlight < cantVuelos && vuelos.length > 0){
+                let h, m;            
+    
+                // (currentTime.getHours() < 10) ?  h = "0" + currentTime.getHours() : h = currentTime.getHours();
+                // (currentTime.getMinutes() < 10) ?  m = "0" + currentTime.getMinutes() : m = currentTime.getMinutes();
+                // console.log(h);
+                // console.log(vuelos[counterFlight].hP0);
 
-            if( (vuelos[counterFlight].hP === (h)) && (vuelos[counterFlight].mP<=(m)) ){
-                console.log(counterFlight);
-                console.log(vuelos[counterFlight]);                
-                setTimeout(() => {
-                    animate(counterFlight, 0, vuelos[counterFlight].duracion*8.9);
-                }, 500);
 
-                if (Math.random() > 0.2) {
-                    incrementCounter();
+                h = currentTime.getHours();
+                m = currentTime.getMinutes();
+
+                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m)) ){
+                    console.log(counterFlight);
+                    // console.log(vuelos[counterFlight]);                
+                    setTimeout(() => {
+                        animate(counterFlight, 0, vuelos[counterFlight].duracion*8.9);
+                    }, 500);
+    
+                    if (Math.random() > 0.01) {
+                        incrementCounter();
+                    }
                 }
-            }                 
+                
+                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 0) ){
+                    if (!cargado) {
+                        console.log("CARGANDO VUELOS");
+                        addFlight(); 
+                        setCargado(1);
+                    } 
+                }
+
+
+                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 50) ){
+                    setCounterFlight(0);
+                    setCargado(0);
+                }
+                
+            }else{
+                
+                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 50) ){
+                    setCounterFlight(0);
+                    setCargado(0);
+                }
+            }
         }
+
+        
+
+
     },[counterFlight, currentTime])
 
 
