@@ -504,7 +504,7 @@ export default function Simulation2(){
 
 		console.log("procesando zip");
 		const uploadFileAns = await fetch(
-			"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
+			"http://localhost:8090/dp1/api/dispatch/upload/zip",
 			requestOptions
 		);
 
@@ -516,7 +516,7 @@ export default function Simulation2(){
 
 			console.log("entro");
 			const simulacion = await fetch(
-				"http://54.163.93.146:8090/dp1/api/airport/flight/all",
+				"http://localhost:8090/dp1/api/airport/flight/all",
 				requestOptions2
 			);
 			
@@ -617,7 +617,7 @@ export default function Simulation2(){
 		};	
 
 		const uploadFileAns = await fetch(
-			"http://54.163.93.146:8090/dp1/api/airport/all",
+			"http://localhost:8090/dp1/api/airport/all",
 			requestOptions
 		);
 	

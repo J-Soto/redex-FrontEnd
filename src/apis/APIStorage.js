@@ -6,7 +6,7 @@ class APIStorage extends APIHandler {
 	async deleteSimulation() {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/storage/deleteSimulated"
+				"http://localhost:8090/dp1/api/storage/deleteSimulated"
 			);
 			return data;
 		} catch (error) {
@@ -17,7 +17,7 @@ class APIStorage extends APIHandler {
 	async updateCheckOut(_idPackage, _idWarehouse) {
 		try {
 			const data = await this.postRequest2(
-				"http://54.163.93.146:8090/dp1/api/storage/update/checkout?idPack=" +
+				"http://localhost:8090/dp1/api/storage/update/checkout?idPack=" +
 					_idPackage +
 					"&idWarehouse=" +
 					_idWarehouse
@@ -30,7 +30,7 @@ class APIStorage extends APIHandler {
 	async updateCheckIn(_idPackage, _idWarehouse) {
 		try {
 			const data = await this.postRequest2(
-				"http://54.163.93.146:8090/dp1/api/storage/update/checkin?idPack=" +
+				"http://localhost:8090/dp1/api/storage/update/checkin?idPack=" +
 					_idPackage +
 					"&idWarehouse=" +
 					_idWarehouse

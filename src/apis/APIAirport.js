@@ -6,7 +6,7 @@ class APIAirport extends APIHandler {
 	async queryAirportByIdCity(_idCity) {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/airport/findby/city?id=" + _idCity
+				"http://localhost:8090/dp1/api/airport/findby/city?id=" + _idCity
 			);
 			return data;
 		} catch (error) {
@@ -17,7 +17,7 @@ class APIAirport extends APIHandler {
 	async queryAllAirports() {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/airport/all"
+				"http://localhost:8090/dp1/api/airport/all"
 			);
 			return data;
 		} catch (error) {
@@ -28,7 +28,7 @@ class APIAirport extends APIHandler {
 	async queryAllFlights() {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/airport/flight/all"
+				"http://localhost:8090/dp1/api/airport/flight/all"
 			);
 			return data;
 		} catch (error) {
@@ -38,7 +38,7 @@ class APIAirport extends APIHandler {
 	async editCapacity(_idFlight, _capacity) {
 		try {
 			const data = await this.postRequest2(
-				"http://54.163.93.146:8090/dp1/api/airport/flight/update/capacity?id=" +
+				"http://localhost:8090/dp1/api/airport/flight/update/capacity?id=" +
 					_idFlight +
 					"&capacity=" +
 					_capacity
@@ -52,7 +52,7 @@ class APIAirport extends APIHandler {
 	async findFlightById(_idFlight) {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/airport/flight/find?id=" + _idFlight
+				"http://localhost:8090/dp1/api/airport/flight/find?id=" + _idFlight
 			);
 			return data;
 		} catch (error) {

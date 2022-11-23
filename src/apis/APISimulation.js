@@ -6,7 +6,7 @@ class APISimulation extends APIHandler {
 	async getTimeline(_date, _time, _simulate) {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/warehouse/timeline?date=" +
+				"http://localhost:8090/dp1/api/warehouse/timeline?date=" +
 					_date +
 					"&time=" +
 					_time +
@@ -22,7 +22,7 @@ class APISimulation extends APIHandler {
 	async getInformationAirport(_id, _dateStart, _dateEnd, _simulate) {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/warehouse/fails/range?id=" +
+				"http://localhost:8090/dp1/api/warehouse/fails/range?id=" +
 					_id +
 					"&idate=" +
 					_dateStart +

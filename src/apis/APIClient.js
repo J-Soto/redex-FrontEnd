@@ -6,7 +6,7 @@ class APIClient extends APIHandler {
 	async findClientByDocument(_document) {
 		try {
 			const data = await this.getRequest(
-				"http://54.163.93.146:8090/dp1/api/client/findby/document?document=" +
+				"http://localhost:8090/dp1/api/client/findby/document?document=" +
 					_document
 			);
 			return data;
@@ -25,7 +25,7 @@ class APIClient extends APIHandler {
 	) {
 		try {
 			const data = await this.postRequest(
-				"http://54.163.93.146:8090/dp1/api/client/edit",
+				"http://localhost:8090/dp1/api/client/edit",
 				{
 					id: _idC,
 					document: _documentC,

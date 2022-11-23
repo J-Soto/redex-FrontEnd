@@ -497,7 +497,7 @@ class Simulation extends React.Component {
 
 			console.log("procesando zip");
 			const uploadFileAns = await fetch(
-				"http://54.163.93.146:8090/dp1/api/dispatch/upload/zip",
+				"http://localhost:8090/dp1/api/dispatch/upload/zip",
 				requestOptions
 			);
 	
@@ -509,7 +509,7 @@ class Simulation extends React.Component {
 
 				console.log("entro");
 				const simulacion = await fetch(
-					"http://54.163.93.146:8090/dp1/api/airport/flight/all",
+					"http://localhost:8090/dp1/api/airport/flight/all",
 					requestOptions2
 				);
 				
@@ -522,7 +522,7 @@ class Simulation extends React.Component {
 
 					let takeOff, arrival, takeOff_hh, takeOff_mi, arrival_hh, arrival_mi, duracionH, duracionM, duracionT;
 					let vuelosDatos = [];
-					let takeOff_hh_utc0, arrival_hh_utc0, utc0P, utc0D, caltakeOffTime;
+					let takeOff_hh_utc0, arrival_hh_utc0, utc0P, utc0D, caltakeOffTime, capacidadUsada;
 
 					archivo_vuelos["resultado"].forEach((element) => {
 						takeOff = new Date();
@@ -539,6 +539,8 @@ class Simulation extends React.Component {
 						duracionH = (takeOff_hh > arrival_hh) ? (24-takeOff_hh+arrival_hh)*60 : (arrival_hh-takeOff_hh)*60;
 						duracionM = (takeOff_mi > arrival_mi) ? (60-takeOff_mi+arrival_mi) : (arrival_mi-takeOff_mi);
 						duracionT = Math.round(((duracionH + duracionM)*1.6/10));
+						
+						capacidadUsada = (element.occupiedCapacity / element.cacapacity) * 100;
 
 						vuelosDatos.push({
 							takeOffAirportLo: element.takeOffAirport.longitude,
@@ -555,7 +557,8 @@ class Simulation extends React.Component {
 							hD: arrival_hh,
 							hD0: arrival_hh_utc0,
 							mD: arrival_mi,
-							capacidad: element.capacity,       
+							capacidad: element.capacity,    
+							capacidadEmpleada: capacidadUsada,
 							// id: counter,
 							duracion: duracionT,
 							takeOffTime: caltakeOffTime,
@@ -674,7 +677,7 @@ class Simulation extends React.Component {
 	
 		console.log("procesando zip");
 		const uploadFileAns = await fetch(
-			"http://54.163.93.146:8090/dp1/api/airport/all",
+			"http://localhost:8090/dp1/api/airport/all",
 			requestOptions
 		);
 	

@@ -691,7 +691,7 @@ class ShipmentSA extends React.Component {
                       <th scope="col">ESTADO</th>
                       <th scope="col">PAÍS, CIUDAD ORIGEN</th>
                       <th scope="col">PAÍS, CIUDAD DESTINO</th>
-                      <th scope="col">CLIENTE EMISOR</th>
+                      {/* <th scope="col">CLIENTE EMISOR</th> */}
                       <th scope="col">FECHA REGISTRO</th>
                       <th scope="col">ACCIONES</th>
                     </tr>
@@ -719,10 +719,10 @@ class ShipmentSA extends React.Component {
                             }
                             , {shipment["destinationAirport"]["city"]["name"]}
                           </td>
-                          <td>
+                          {/* <td>
                             {shipment["send_client"]["name"]}{" "}
                             {shipment["send_client"]["lastname"]}
-                          </td>
+                          </td> */}
                           <td>{shipment["registerDate"].substring(0, 10)}</td>
                           {/*<td>
                               {shipment["registerDate"].substring(11, 16)}
