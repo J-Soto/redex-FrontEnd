@@ -167,6 +167,7 @@ function valuetext(value) {
 }
 
 let datos = [];
+let startDateSimuVar;
 
 
 class Simulation extends React.Component {
@@ -463,6 +464,8 @@ class Simulation extends React.Component {
 		return orderedFlights;
 	}
 
+	
+
 	submitFile = async () => {
 		//const fileInput = data.querySelector('#packs.generado.20220607') ;
 		this.setState({ loading: true });
@@ -470,8 +473,10 @@ class Simulation extends React.Component {
 		const formData = new FormData();
 
 		formData.append("file", fileInput.files[0]);
+		formData.append("date", startDateSimuVar);
 
 		//subir archivo
+		//var startDateSimuVar=this.state.startDateSimu._d;
 
 		var requestOptions = {
 			method: "POST",
@@ -496,6 +501,7 @@ class Simulation extends React.Component {
 			
 
 			console.log("procesando zip");
+			debugger;
 			const uploadFileAns = await fetch(
 				"http://localhost:8090/dp1/api/dispatch/upload/zip",
 				requestOptions
@@ -1044,7 +1050,11 @@ class Simulation extends React.Component {
 																	</td>
 																);
 															}}
-															onChange={(e) => this.setState({ startDateSimu: e })}
+															onChange={(e) => {
+																console.log("ebentoo", e._d)
+																this.setState({ startDateSimu: e });
+																startDateSimuVar=e._d;}
+															}
 														/>
 													</InputGroup>
 												</FormGroup>
