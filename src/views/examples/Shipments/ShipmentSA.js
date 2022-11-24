@@ -778,7 +778,7 @@ class ShipmentSA extends React.Component {
                     </button>
                   </div>
                   <div className="modal-body">
-                    <Form>
+                    {/* <Form>
                       <div className="pl-lg-4">
                         <Row>
                           <Col lg="6">
@@ -823,7 +823,7 @@ class ShipmentSA extends React.Component {
                           </Col>
                         </Row>
                       </div>
-                    </Form>
+                    </Form> */}
                     <Row>
                       <div className="modal-header">
                         <h3 className="modal-title" id="modal-title-default">

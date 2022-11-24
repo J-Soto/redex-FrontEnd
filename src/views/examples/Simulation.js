@@ -492,7 +492,7 @@ class Simulation extends React.Component {
 			});
 
 			console.log("procesando zip");
-			debugger;
+			
 			const uploadFileAns = await fetch(
 				"http://localhost:8090/dp1/api/dispatch/upload/zip",
 				requestOptions
@@ -567,7 +567,7 @@ class Simulation extends React.Component {
 						duracionT = Math.round(((duracionH + duracionM) * 1.6) / 10);
 
 						capacidadUsada =
-							(element.occupiedCapacity / element.cacapacity) * 100;
+							parseInt(parseFloat(element.occupiedCapacity / element.capacity) * 100);
 
 						vuelosDatos.push({
 							takeOffAirportLo: element.takeOffAirport.longitude,
@@ -1175,6 +1175,10 @@ class Simulation extends React.Component {
 											{this.state.messageConfirmation1}
 										</Row>
 
+										<Row>
+											{this.state.loading && <Spinner color="primary" />}
+										</Row>
+
 										<Row
 											style={{
 												display: "flex",
@@ -1182,7 +1186,7 @@ class Simulation extends React.Component {
 												marginTop: "20px",
 												marginBottom: "20px",
 											}}>
-											<div style={{ height: "700px", width: "100%" }}>
+											<div style={{ height: "850px", width: "100%" }}>
 												{this.state.archivoAeropuertos["resultado"] ? (
 													<MapBoxAirport
 														data={this.state.archivoAeropuertos["resultado"]}
@@ -1203,9 +1207,7 @@ class Simulation extends React.Component {
 											</div>
 										</Row>
 
-										<Row>
-											{this.state.loading && <Spinner color="primary" />}
-										</Row>
+										
 										<Row>
 											<h3>Resultado de la simulación</h3>
 										</Row>

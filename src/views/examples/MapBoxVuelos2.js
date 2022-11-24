@@ -4,15 +4,14 @@ import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 import MapboxWorker from "worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker"; 
 import 'mapbox-gl/dist/mapbox-gl.css'; 
 import * as turf from '@turf/turf';
-import PlaneImage from '../../assets/img/icons/common/Plane4.png'
 
 import PlaneImage1 from '../../assets/img/icons/common/airplane-mode.png'
-import PlaneImage2 from '../../assets/img/icons/common/airplane-mode2.png'
-import PlaneImage3 from '../../assets/img/icons/common/airplane-mode3.png'
-import PlaneImage4 from '../../assets/img/icons/common/airplane-mode4.png'
+import PlaneImage2 from '../../assets/img/icons/common/airplane-mode3.png'
+import PlaneImage3 from '../../assets/img/icons/common/airplane-mode4.png'
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ClockTime from './ClockTime';
+import Legend from './Legend';
 import { couldStartTrivia } from "typescript";
 
 mapboxgl.workerClass = MapboxWorker;
@@ -114,15 +113,13 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                     source: "point"+vuelo.id,
                     type: "symbol",
                     layout: {
-                        "icon-image": vuelo.capacidadUsada === 0 ? "plane1" : "plane2",
+                        // "icon-image": "plane3",
+                        "icon-image": vuelo.capacidadEmpleada <= 20 ? "plane1" : vuelo.capacidadEmpleada <= 60 ? "plane2" : "plane3" ,
                         "icon-size": 1.5,
                         'icon-rotate': ['get', 'bearing'],
                         "icon-rotation-alignment": "map",
                         "icon-allow-overlap": true,
                         "icon-ignore-placement": true,
-                    },
-                    paint:{
-                        "icon-color": "#186a7a"
                     }
                 });    
     
@@ -234,19 +231,11 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
             dragRotate: false
         });
 
-        mapBox.current.setRenderWorldCopies(false);      
-
-        if(dataVuelos.length > 0){
-            setCounterFlight(counterFlight+1);
-        }
-
         mapBox.current.loadImage(PlaneImage1,
             (error, image) => {
             if (error) throw error;
               
-            mapBox.current.addImage('plane1', image, {
-              "sdf": "true"
-            });        
+            mapBox.current.addImage('plane1', image);        
           }
         );
 
@@ -254,9 +243,7 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
             (error, image) => {
             if (error) throw error;
               
-            mapBox.current.addImage('plane2', image, {
-              "sdf": "true"
-            });        
+            mapBox.current.addImage('plane2', image);        
           }
         );
 
@@ -264,21 +251,45 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
             (error, image) => {
             if (error) throw error;
               
-            mapBox.current.addImage('plane3', image, {
-              "sdf": "true"
-            });        
+            mapBox.current.addImage('plane3', image);        
           }
         );
 
-        mapBox.current.loadImage(PlaneImage4,
-            (error, image) => {
-            if (error) throw error;
+        mapBox.current.setRenderWorldCopies(false);      
+
+        if(dataVuelos.length > 0){
+            setCounterFlight(counterFlight+1);
+        }
+
+        
+
+        // mapBox.current.loadImage(PlaneImage2,
+        //     (error, image) => {
+        //     if (error) throw error;
               
-            mapBox.current.addImage('plane4', image, {
-              "sdf": "true"
-            });        
-          }
-        );
+        //     mapBox.current.addImage('plane2', image);        
+        //   }
+        // );
+
+        // mapBox.current.loadImage(PlaneImage3,
+        //     (error, image) => {
+        //     if (error) throw error;
+              
+        //     mapBox.current.addImage('plane3', image, {
+        //       "sdf": "true"
+        //     });        
+        //   }
+        // );
+
+        // mapBox.current.loadImage(PlaneImage4,
+        //     (error, image) => {
+        //     if (error) throw error;
+              
+        //     mapBox.current.addImage('plane4', image, {
+        //       "sdf": "true"
+        //     });        
+        //   }
+        // );
 
 
 
@@ -308,10 +319,10 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                 h = currentTime.getHours();
                 m = currentTime.getMinutes();
 
-                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m)) ){           
+                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m)) ){   
                     setTimeout(() => {
                         animate(counterFlight, 0, vuelos[counterFlight].duracion*8.9);
-                    }, 500);
+                    }, 400);
     
                     if (Math.random() > 0.01) {
                         incrementCounter();
@@ -353,6 +364,9 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
            <ClockTime setCurrentTime={setCurrentTime} startDate={startDate}/>
 
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginBottom: "10px" }} />
+
+            <Legend/>
+
         </div>
     )
 }
