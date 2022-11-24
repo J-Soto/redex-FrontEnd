@@ -1175,6 +1175,7 @@ class Simulation extends React.Component {
 											{this.state.messageConfirmation1}
 										</Row>
 
+
 										<Row>
 											{this.state.loading && <Spinner color="primary" />}
 										</Row>
