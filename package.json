@@ -66,6 +66,7 @@
     "react-scripts": "^3.4.0",
     "reactstrap": "8.4.1",
     "sass": "^1.55.0",
+    "turf": "^3.0.14",
     "worker-loader": "^3.0.8"
   },
   "devDependencies": {
