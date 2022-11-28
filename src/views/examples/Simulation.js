@@ -9,12 +9,10 @@ import Chart from "chart.js";
 import { Bar, Pie, HorizontalBar } from "react-chartjs-2";
 import Slider from "@material-ui/core/Slider";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import ReactDatetime from "react-datetime";
 
 import MapBox from "./Mapbox";
 import MapBoxAirport from "./MapBoxAirport";
-import MapBoxVuelos from "./MapBoxVuelos";
 import MapBoxVuelos2 from "./MapBoxVuelos2";
 
 // reactstrap components
@@ -207,6 +205,7 @@ class Simulation extends React.Component {
 			progress: [],
 			archivoAeropuertos: [],
 			archivoVuelos: [],
+			archivoZip: new FormData(),
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -470,6 +469,10 @@ class Simulation extends React.Component {
 		formData.append("file", fileInput.files[0]);
 		formData.append("date", startDateSimuVar);
 
+		this.setState({archivoZip: fileInput.files[0]});
+
+		console.log(this.state.archivoZip);
+
 		//subir archivo
 		//var startDateSimuVar=this.state.startDateSimu._d;
 
@@ -492,19 +495,19 @@ class Simulation extends React.Component {
 			});
 
 			console.log("procesando zip");
-			//
+			
 			const uploadFileAns = await fetch(
 				"http://localhost:8090/dp1/api/dispatch/upload/zip",
 				requestOptions
 			);
 
 			uploadFile = await uploadFileAns.json();
-			console.log(uploadFile["resultado"]);
+			console.log(uploadFile["estado"]);
 
 			if (uploadFile["estado"].length < 3) {
 				console.log("entro");
 				const simulacion = await fetch(
-					"http://localhost:8090/dp1/api/airport/flight/all",
+					"http://localhost:8090/dp1/api/airport/flight/plan/all",
 					requestOptions2
 				);
 
@@ -513,7 +516,6 @@ class Simulation extends React.Component {
 				let counter = 0;
 
 				if (archivo_vuelos["resultado"].length > 0) {
-					console.log("HOLA");
 
 					let takeOff,
 						arrival,
@@ -534,18 +536,18 @@ class Simulation extends React.Component {
 
 					archivo_vuelos["resultado"].forEach((element) => {
 						takeOff = new Date();
-						[takeOff_hh, takeOff_mi] = element.takeOffTime.split(/[/:\-T]/);
+						[takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
 						arrival = new Date();
-						[arrival_hh, arrival_mi] = element.arrivalTime.split(/[/:\-T]/);
+						[arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);
 
-						utc0P = element.takeOffAirport.city.country.utc;
+						utc0P = element.flight.takeOffAirport.city.country.utc;
 						takeOff_hh_utc0 =
 							takeOff_hh - utc0P > 24
 								? takeOff_hh - utc0P - 24
 								: takeOff_hh - utc0P > 0
 								? takeOff_hh - utc0P
 								: 24 - takeOff_hh - utc0P;
-						utc0D = element.arrivalAirport.city.country.utc;
+						utc0D = element.flight.arrivalAirport.city.country.utc;
 						arrival_hh_utc0 =
 							arrival_hh - utc0D > 24
 								? arrival_hh - utc0D - 24
@@ -567,15 +569,15 @@ class Simulation extends React.Component {
 						duracionT = Math.round(((duracionH + duracionM) * 1.6) / 10);
 
 						capacidadUsada =
-							parseInt(parseFloat(element.occupiedCapacity / element.capacity) * 100);
+							parseInt(parseFloat(element.occupiedCapacity / element.flight.capacity) * 100);
 
 						vuelosDatos.push({
-							takeOffAirportLo: element.takeOffAirport.longitude,
-							takeOffAirportLa: element.takeOffAirport.latitude,
-							takeOffAirportD: element.takeOffAirport.description,
-							arrivalAirportLo: element.arrivalAirport.longitude,
-							arrivalAirportLa: element.arrivalAirport.latitude,
-							arrivalAirportD: element.arrivalAirport.description,
+							takeOffAirportLo: element.flight.takeOffAirport.longitude,
+							takeOffAirportLa: element.flight.takeOffAirport.latitude,
+							takeOffAirportD: element.flight.takeOffAirport.description,
+							arrivalAirportLo: element.flight.arrivalAirport.longitude,
+							arrivalAirportLa: element.flight.arrivalAirport.latitude,
+							arrivalAirportD: element.flight.arrivalAirport.description,
 							fechaPartida: takeOff,
 							hP: takeOff_hh,
 							hP0: takeOff_hh_utc0,
@@ -584,12 +586,12 @@ class Simulation extends React.Component {
 							hD: arrival_hh,
 							hD0: arrival_hh_utc0,
 							mD: arrival_mi,
-							capacidad: element.capacity,
+							capacidad: element.flight.capacity,
 							capacidadEmpleada: capacidadUsada,
 							// id: counter,
 							duracion: duracionT,
 							takeOffTime: caltakeOffTime,
-							idReal: element.idFlight,
+							idReal: element.flight.idFlight,
 						});
 
 						counter = counter + 1;
@@ -602,75 +604,70 @@ class Simulation extends React.Component {
 					<Alert>El archivo se subió de manera correcta</Alert>
 				);
 
-				const resultIncident = await serviceIncident.getDashboards(true);
-				let dataChart1 = [],
-					labelsChart1 = [],
-					legendChart1 = [],
-					dataChart2 = [],
-					labelsChart2 = [],
-					legendChart2 = [];
-				if (resultIncident["estado"].length < 3) {
-					resultIncident["resultado"]["byairports"].map((airport) => {
-						dataChart1.push(airport["count"]);
-						labelsChart1.push(airport["code"]);
-						legendChart1.push([
-							airport["code"],
-							airport["city"],
-							airport["country"],
-						]);
-					});
+				this.setState({
+					messageConfirmation: alertMessage,
+					loading: false,
+					loaded: true
+				});
 
-					resultIncident["resultado"]["byflightplans"].map((flight) => {
-						dataChart2.push(flight["count"]);
-						labelsChart2.push(flight["idFlight"]);
-						legendChart2.push([
-							flight["idFlight"],
-							flight["cityOrigin"],
-							flight["countryOrigin"],
-							flight["cityDestiny"],
-							flight["countryDestiny"],
-						]);
-					});
+				// const resultIncident = await serviceIncident.getDashboards(true);
+				// let dataChart1 = [],
+				// 	labelsChart1 = [],
+				// 	legendChart1 = [],
+				// 	dataChart2 = [],
+				// 	labelsChart2 = [],
+				// 	legendChart2 = [];
+				// if (resultIncident["estado"].length < 3) {
+				// 	resultIncident["resultado"]["byairports"].map((airport) => {
+				// 		dataChart1.push(airport["count"]);
+				// 		labelsChart1.push(airport["code"]);
+				// 		legendChart1.push([
+				// 			airport["code"],
+				// 			airport["city"],
+				// 			airport["country"],
+				// 		]);
+				// 	});
 
-					this.setState({
-						messageConfirmation: alertMessage,
-						loading: false,
-						loaded: true,
-						dataChart1: dataChart1,
-						labelsChart1: labelsChart1,
-						legendChart1: legendChart1,
-						dataChart2: dataChart2,
-						labelsChart2: labelsChart2,
-						legendChart2: legendChart2,
-						dataChart3: resultIncident["resultado"]["summaryCase"],
-					});
-				} else {
-					//si hay error porque no hay data
-					this.setState({
-						messageConfirmation: alertMessage,
-						loading: false,
-						loaded: true,
-						dataChart1: [0, 0, 0, 0, 0],
-						labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
-						legendChart1: [
-							["A1", "C1", "P1"],
-							["A2", "C2", "P2"],
-							["A3", "C3", "P3"],
-							["A4", "C4", "P4"],
-							["A5", "C5", "P5"],
-						],
-						dataChart2: [0, 0, 0, 0, 0],
-						labelsChart2: ["V1", "V2", "V3", "V4", "V5"],
-						legendChart2: [
-							["V1", "OC1", "OP1", "DC1", "DP1"],
-							["V2", "OC2", "OP2", "DC2", "DP2"],
-							["V3", "OC3", "OP3", "DC3", "DP3"],
-							["V4", "OC4", "OP4", "DC4", "DP4"],
-							["V5", "OC5", "OP5", "DC5", "DP5"],
-						],
-						dataChart3: { ok: 0, fails: 0, late: 0 },
-					});
-				}
+				// 	resultIncident["resultado"]["byflightplans"].map((flight) => {
+				// 		dataChart2.push(flight["count"]);
+				// 		labelsChart2.push(flight["idFlight"]);
+				// 		legendChart2.push([
+				// 			flight["idFlight"],
+				// 			flight["cityOrigin"],
+				// 			flight["countryOrigin"],
+				// 			flight["cityDestiny"],
+				// 			flight["countryDestiny"],
+				// 		]);
+				// 	});
+
+					
+				// } else {
+				// 	//si hay error porque no hay data
+				// 	this.setState({
+				// 		messageConfirmation: alertMessage,
+				// 		loading: false,
+				// 		loaded: true,
+				// 		dataChart1: [0, 0, 0, 0, 0],
+				// 		labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
+				// 		legendChart1: [
+				// 			["A1", "C1", "P1"],
+				// 			["A2", "C2", "P2"],
+				// 			["A3", "C3", "P3"],
+				// 			["A4", "C4", "P4"],
+				// 			["A5", "C5", "P5"],
+				// 		],
+				// 		dataChart2: [0, 0, 0, 0, 0],
+				// 		labelsChart2: ["V1", "V2", "V3", "V4", "V5"],
+				// 		legendChart2: [
+				// 			["V1", "OC1", "OP1", "DC1", "DP1"],
+				// 			["V2", "OC2", "OP2", "DC2", "DP2"],
+				// 			["V3", "OC3", "OP3", "DC3", "DP3"],
+				// 			["V4", "OC4", "OP4", "DC4", "DP4"],
+				// 			["V5", "OC5", "OP5", "DC5", "DP5"],
+				// 		],
+				// 		dataChart3: { ok: 0, fails: 0, late: 0 },
+				// 	});
+				// }
 			} else {
 				let alertMessage = (
 					<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
@@ -733,29 +730,7 @@ class Simulation extends React.Component {
 		}
 	};
 
-	/*componentWillMount = async () => {
-    const resultTimeline = await serviceTimeline.getTimeline(
-      "20220223",
-      "15:27"
-    );
-    console.log(resultTimeline["resultado"]);
-    let dataChart1 = [],
-      labelsChart1 = [];
-    if (resultTimeline["estado"].length < 3) {
-      resultTimeline["resultado"].map((airport) => {
-        dataChart1.push(airport["percentage"]);
-        labelsChart1.push(airport["code"]);
-      });
-      console.log(dataChart1);
-      console.log(labelsChart1);
-      this.setState({ dataTimeLine: dataChart1, labelsTimeLine: labelsChart1 });
-    } else {
-      this.setState({
-        dataTimeLine: [0, 0, 0, 0, 0],
-        labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
-      });
-    }
-  };*/
+
 	componentWillMount = async () => {
 		const resultIncident = await serviceIncident.getDashboards(true);
 		const resultCountries = await serviceCountry.queryAllCountries();
@@ -834,7 +809,7 @@ class Simulation extends React.Component {
 			}
 			//console.log(month);
 
-			console.log(this.state.queryDate.getDate());
+			//console.log(this.state.queryDate.getDate());
 			let date = this.state.queryDate.getDate();
 			if (date < 10) {
 				date = "0" + date;
@@ -1068,9 +1043,7 @@ class Simulation extends React.Component {
 																	</td>
 																);
 															}}
-															onChange={(e) => {
-																console.log("date:");
-																console.log(JSON.stringify(e._d));
+															onChange={(e) => {																
 																this.setState({ startDateSimu: e });
 																startDateSimuVar = JSON.stringify(e._d);
 															}}
@@ -1186,8 +1159,9 @@ class Simulation extends React.Component {
 												justifyContent: "center",
 												marginTop: "20px",
 												marginBottom: "20px",
+												marginRight: "0px"
 											}}>
-											<div style={{ height: "850px", width: "100%" }}>
+											<div style={{ height: this.state.archivoVuelos.length ? "1600px" : "700px", width: "100%" }}>
 												{this.state.archivoAeropuertos["resultado"] ? (
 													<MapBoxAirport
 														data={this.state.archivoAeropuertos["resultado"]}
@@ -1199,6 +1173,7 @@ class Simulation extends React.Component {
 																dataVuelos={this.state.archivoVuelos}
 																startDate={this.state.startDateSimu._d}
 																endDate={this.state.endDateSimu._d}
+																zip = {this.state.archivoZip}
 															/>
 														) : (
 															<MapBox />
@@ -1209,14 +1184,15 @@ class Simulation extends React.Component {
 										</Row>
 
 										
-										<Row>
+										{/* <Row>
 											<h3>Resultado de la simulación</h3>
 										</Row>
 										<br />
 										<Row>
 											<h3>TOP 5 Almacenes ocupados</h3>
-										</Row>
-										<Row>
+										</Row> */}
+
+										{/* <Row>
 											<Col lg="9">
 												<div className="chart">
 													<Bar data={data1} options={chartExample3.options} />
@@ -1361,7 +1337,7 @@ class Simulation extends React.Component {
 										</Row>
 										<Row>
 											<Col lg="4">
-												{/*filtrar por fechas*/}
+												
 												<FormGroup>
 													<label className="form-control-label">
 														Fecha de inicio
@@ -1486,11 +1462,11 @@ class Simulation extends React.Component {
 												</div>
 											</Col>
 										</Row>
-										<br />
-										<Row>
-											<h3>Seguimiento de capacidades</h3>
-										</Row>
-										<Row>
+										<br /> */}
+										
+										
+										
+										{/* <Row>
 											<FormGroup style={{ width: "30%" }}>
 												<label className="form-control-label">Fecha</label>
 												<InputGroup className="input-group-alternative">
@@ -1546,12 +1522,11 @@ class Simulation extends React.Component {
 													})}
 												</ListGroup>
 											</Col>
-										</Row>
+										</Row> */}
 
-										<Row>
-											<h3>TOP 5 Vuelos ocupados</h3>
-										</Row>
-										<Row>
+										
+
+										{/* <Row>
 											<Col lg="9">
 												<div className="chart">
 													<Bar data={data2} options={chartExample3.options} />
@@ -1625,8 +1600,9 @@ class Simulation extends React.Component {
 											</div>
 										) : (
 											""
-										)}
-										<Row>
+										)} */}
+
+										{/* <Row>
 											<h3>Resumen de la simulación</h3>
 										</Row>
 										<Row>
@@ -1658,38 +1634,8 @@ class Simulation extends React.Component {
 													<span className="btn-inner--text">Eliminar</span>
 												</Button>
 											</Col>
-										</Row>
-
-										{/*<Typography id="discrete-slider" gutterBottom>
-                      Fecha
-                    </Typography>
-                    <Slider
-                      style={{ width: 80 + "%" }}
-                      defaultValue={0}
-                      getAriaValueText={valuetext}
-                      aria-labelledby="discrete-slider"
-                      valueLabelDisplay="auto"
-                      step={10}
-                      marks
-                      min={0}
-                      max={50}
-                      onChange={this.handleChangeSimulation}
-                    />
-                    <Typography id="discrete-slider" gutterBottom>
-                      Hora
-                    </Typography>
-                    <Slider
-                      style={{ width: 80 + "%" }}
-                      defaultValue={0}
-                      getAriaValueText={valuetext}
-                      aria-labelledby="discrete-slider"
-                      valueLabelDisplay="auto"
-                      step={10}
-                      marks
-                      min={0}
-                      max={50}
-                      onChange={this.handleChangeSimulation}
-                    />*/}
+										</Row> */}
+										
 									</div>
 								</Form>
 							</CardBody>

@@ -12,15 +12,26 @@ import PlaneImage3 from '../../assets/img/icons/common/airplane-mode4.png'
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ClockTime from './ClockTime';
 import Legend from './Legend';
-import { couldStartTrivia } from "typescript";
+import APIShipment from  "../../apis/APIShipment.js";
+
+import {	
+	Row,
+    Card,
+    CardFooter,
+    Table,	
+    Pagination,
+    PaginationItem,
+    PaginationLink,
+} from "reactstrap";
 
 mapboxgl.workerClass = MapboxWorker;
 
 
+var moment = require("moment");
+require("moment/locale/es");
 
 
-
-const MapBox = ({dataVuelos,startDate,endDate}) => {
+const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VybnV0ZWh6IiwiYSI6ImNsOXVuYjMzMzAwNG8zdWxhY2dlZzJhMzEifQ.rEKkvxvnjNKLc5Q8uSlZ1A';
 
@@ -33,15 +44,37 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
     const [currentTime, setCurrentTime] = useState(startDate)
     const [counterFlight, setCounterFlight] = useState(-1);
     const [vuelos, setVuelos] = useState([]);
-    const [cargado, setCargado] = useState(0);
+    const [vuelosD, setVuelosD] = useState([]);
+    const [envios, setEnvios] = useState([]);
+    const [paginas, setPaginas] = useState(0);
+    const [pagina, setPagina] = useState(0);
+    const [paginasItems, setPaginasItems] = useState([]);
+    const [semaforo, setSemaforo] = useState(true);
+    const [cargado, setCargado] = useState(true);
+    const shipmentService = new APIShipment();
 
-    var cantVuelos = 50;
-    var steps = 100;
+    let archivo_vuelos;
+    let cantVuelos = 50;
+    let steps = 100;
+    let counter = dataVuelos.length;
+    let day = 0;
+    let vuelosDatos = [];
+    let pointerId = 0;
+    let cargando = true;
+    let respuesta = true;
+    let iniPage = 0;
+    let finPage = 10;
+    let items = [];
+     let x;
 
     
-    const addFlight = () => { 
+    
+    const addFlight = (pointerId) => { 
 
-        vuelos.forEach((vuelo) =>{
+        var vuelosPointer = vuelos.filter(function (el) { return el.id >= (pointerId) });
+        
+
+        vuelosPointer.forEach((vuelo) =>{
             const route = {
                 type: 'FeatureCollection',
                 features: [
@@ -113,7 +146,6 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                     source: "point"+vuelo.id,
                     type: "symbol",
                     layout: {
-                        // "icon-image": "plane3",
                         "icon-image": vuelo.capacidadEmpleada <= 20 ? "plane1" : vuelo.capacidadEmpleada <= 60 ? "plane2" : "plane3" ,
                         "icon-size": 1.5,
                         'icon-rotate': ['get', 'bearing'],
@@ -200,25 +232,199 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
         setCounterFlight((v) => v + 1);
     });
     
+    const dispatchTable = async () => {
+        const infoShipments = await shipmentService.listShipmentsAll();
+        if (infoShipments["estado"].length < 3) {
+            let pageItems = infoShipments["resultado"].slice(0, 10);
+            setEnvios(infoShipments);
+            setPaginas(Math.ceil(infoShipments["resultado"].length / 10));
+            setPaginasItems(pageItems);
+        }
+    }
 
-    // const orderFlights = (vuelosDatos) => {
-	// 	var length=vuelosDatos.length;
-	// 	for(var i=0; i<length; i++){
-	// 		for(var j=0;j<length-1-i;j++){
-	// 			if(vuelosDatos[j].takeOffTime>vuelosDatos[j+1].takeOffTime){
-	// 				vuelosDatos = exchangePos(vuelosDatos,j);
-	// 			}
-	// 		}
-	// 	}
-	// }
+    const loadData = async () => {
+        console.log("Hola desde loadData");
+        if(semaforo){
+            console.log("Entre a loadData");
 
-	// const exchangePos = (orderedFlights,j) => {
-	// 	var posJ=orderedFlights[j];
-	// 	orderedFlights[j]=orderedFlights[j+1]
-	// 	orderedFlights[j+1]=posJ;
-	// 	return orderedFlights;
-	// }
+            var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
+    
+            var new_date2 = JSON.stringify(new_date._d);
+            
+            const formData = new FormData();
+            formData.append("file", zip);
+            formData.append("date", new_date2);    
+            
+            console.log(new_date2);
 
+            var requestOptions = {
+                method: "POST",
+                body: formData,
+                redirect: "follow",
+            };
+            var requestOptions2 = {
+                method: "GET",
+                body: {"fecha": new_date2},
+                redirect: "follow",
+            };
+    
+            let uploadFile;
+            console.log("procesando zip");
+            console.log(zip);
+                
+            const uploadFileAns = await fetch(
+                "http://localhost:8090/dp1/api/dispatch/upload/zip",
+                requestOptions
+            );
+    
+            uploadFile = await uploadFileAns.json();
+            
+            if (uploadFile["estado"].length < 3) {
+                console.log("entro");
+                respuesta = true;
+                
+                const simulacion = await fetch(
+                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2,
+                  
+                );
+                    
+                archivo_vuelos = await simulacion.json();
+                
+                console.log(archivo_vuelos);
+
+                if (archivo_vuelos["resultado"].length > 0) {
+                    
+                    vuelosDatos = [];
+                   
+                    let takeOff,
+                        arrival,
+                        takeOff_hh,
+                        takeOff_mi,
+                        arrival_hh,
+                        arrival_mi,
+                        duracionH,
+                        duracionM,
+                        duracionT;
+                    
+                    let takeOff_hh_utc0,
+                        arrival_hh_utc0,
+                        utc0P,
+                        utc0D,
+                        caltakeOffTime,
+                        capacidadUsada;
+                    
+                    console.log(archivo_vuelos);
+                    archivo_vuelos = archivo_vuelos["resultado"];    
+                    console.log(archivo_vuelos);
+    
+                    archivo_vuelos.forEach((element) => {
+                        takeOff = new Date();
+                        [takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
+                        arrival = new Date();
+                        [arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);
+    
+                        utc0P = element.flight.takeOffAirport.city.country.utc;
+                        takeOff_hh_utc0 =
+                            takeOff_hh - utc0P > 24
+                                ? takeOff_hh - utc0P - 24
+                                : takeOff_hh - utc0P > 0
+                                ? takeOff_hh - utc0P
+                                : 24 - takeOff_hh - utc0P;
+                        utc0D = element.flight.arrivalAirport.city.country.utc;
+                        arrival_hh_utc0 =
+                            arrival_hh - utc0D > 24
+                                ? arrival_hh - utc0D - 24
+                                : arrival_hh - utc0D > 0
+                                ? arrival_hh - utc0D
+                                : 24 - arrival_hh - utc0D;
+    
+                        caltakeOffTime = parseInt(
+                            takeOff_hh_utc0 * 100 + parseInt(takeOff_mi)
+                        );
+                        duracionH =
+                            takeOff_hh > arrival_hh
+                                ? (24 - takeOff_hh + arrival_hh) * 60
+                                : (arrival_hh - takeOff_hh) * 60;
+                        duracionM =
+                            takeOff_mi > arrival_mi
+                                ? 60 - takeOff_mi + arrival_mi
+                                : arrival_mi - takeOff_mi;
+                        duracionT = Math.round(((duracionH + duracionM) * 1.6) / 10);
+    
+                        capacidadUsada =
+                            parseInt(parseFloat(element.occupiedCapacity / element.flight.capacity) * 100);
+    
+                        vuelosDatos.push({
+                            takeOffAirportLo: element.flight.takeOffAirport.longitude,
+                            takeOffAirportLa: element.flight.takeOffAirport.latitude,
+                            takeOffAirportD: element.flight.takeOffAirport.description,
+                            arrivalAirportLo: element.flight.arrivalAirport.longitude,
+                            arrivalAirportLa: element.flight.arrivalAirport.latitude,
+                            arrivalAirportD: element.flight.arrivalAirport.description,
+                            fechaPartida: takeOff,
+                            hP: takeOff_hh,
+                            hP0: takeOff_hh_utc0,
+                            mP: takeOff_mi,
+                            fechaDestino: arrival,
+                            hD: arrival_hh,
+                            hD0: arrival_hh_utc0,
+                            mD: arrival_mi,
+                            capacidad: element.flight.capacity,
+                            capacidadEmpleada: capacidadUsada,
+                            id: counter,
+                            duracion: duracionT,
+                            takeOffTime: caltakeOffTime,
+                            idReal: element.idFlight,
+                        });
+    
+                        counter = counter + 1;
+                    });
+    
+                    orderFlights(vuelosDatos);
+    
+                    setVuelosD(vuelosDatos);
+                }
+    
+            }else{
+                if (uploadFile["estado"].length > 6){
+                    console.log("TE CAISTE WACHO :c");
+                } 
+            }
+
+        }
+
+    }
+
+    const orderFlights = (vuelosDatos) => {
+		var length=vuelosDatos.length;
+		for(var i=0; i<length; i++){
+			for(var j=0;j<length-1-i;j++){
+				if(vuelosDatos[j].takeOffTime>vuelosDatos[j+1].takeOffTime){
+					vuelosDatos = exchangePos(vuelosDatos,j);
+				}
+			}
+		}
+	}
+
+	const exchangePos = (orderedFlights,j) => {
+		var posJ=orderedFlights[j];
+		orderedFlights[j]=orderedFlights[j+1]
+		orderedFlights[j+1]=posJ;
+		return orderedFlights;
+	}
+
+
+    const handlePrevPage = () => {
+        var pageItems = envios.slice( iniPage - 10,  finPage - 10 );
+        setPaginasItems(pageItems);
+        setPagina(pagina-1);     
+    }
+
+    const handleNextPage = () => {        
+        var pageItems = envios.slice( iniPage + 10, finPage + 10 );
+        setPaginasItems(pageItems);
+        setPagina(pagina+1);         
+    }
 
     
     useEffect(() => {   
@@ -259,45 +465,16 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
 
         if(dataVuelos.length > 0){
             setCounterFlight(counterFlight+1);
+            dispatchTable();
         }
-
-        
-
-        // mapBox.current.loadImage(PlaneImage2,
-        //     (error, image) => {
-        //     if (error) throw error;
-              
-        //     mapBox.current.addImage('plane2', image);        
-        //   }
-        // );
-
-        // mapBox.current.loadImage(PlaneImage3,
-        //     (error, image) => {
-        //     if (error) throw error;
-              
-        //     mapBox.current.addImage('plane3', image, {
-        //       "sdf": "true"
-        //     });        
-        //   }
-        // );
-
-        // mapBox.current.loadImage(PlaneImage4,
-        //     (error, image) => {
-        //     if (error) throw error;
-              
-        //     mapBox.current.addImage('plane4', image, {
-        //       "sdf": "true"
-        //     });        
-        //   }
-        // );
-
-
 
     },[]);
 
+    
+
     useEffect(() =>{
         if(dataVuelos.length>0){
-            dataVuelos.splice(cantVuelos);
+            // dataVuelos.splice(cantVuelos);
             setVuelos(dataVuelos);   
             console.log(vuelos);
 
@@ -306,20 +483,62 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
 
     useEffect(() =>{        
         if(vuelos.length > 0){
-            console.log(vuelos);
-            addFlight();
+            console.log(vuelos);            
+            addFlight(pointerId);            
+            dispatchTable();
         }
     }, [vuelos])
 
+    useEffect(()=> {
+        if(envios.length > 0){
+            
+            items = [];
+            dispatchTable();
+           
+            if (pagina % 10 === 0) {
+                x = Math.floor(pagina / 10) - 1;
+            } else {
+                x = Math.floor(pagina / 10);
+            }
+
+            let ini = 1 + x * 10;
+            let y = 0;
+            let fin = 1 + x * 10;
+
+            if (paginas <= 10) {
+                fin = paginas;
+            } else {
+                fin = 10 + x * 10;
+            }
+          
+            for (let number = ini; number <= paginas; number++) {
+                items.push(
+                <PaginationItem
+                    value={number}
+                    className={pagina === number ? "active" : "disabled"}
+                >
+                    <PaginationLink>{number}</PaginationLink>
+                </PaginationItem>
+                );
+            }
+             
+            
+        }
+        
+    }, [envios])
+
+
     useEffect(() =>{
-        if(currentTime.getDate() < startDate.getDate()+4){
-            if(counterFlight >= 0 && counterFlight < cantVuelos && vuelos.length > 0){
+        if(currentTime.getDate() < endDate.getDate()+1){
+            if(counterFlight >= 0 && vuelos.length > 0){
                 let h, m;            
 
                 h = currentTime.getHours();
                 m = currentTime.getMinutes();
 
-                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m)) ){   
+
+                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
+                    console.log("Vuelo actual: " + counterFlight);
                     setTimeout(() => {
                         animate(counterFlight, 0, vuelos[counterFlight].duracion*8.9);
                     }, 400);
@@ -327,28 +546,31 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
                     if (Math.random() > 0.01) {
                         incrementCounter();
                     }
-                }
-                
-                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 0) ){
-                    if (!cargado) {
-                        addFlight(); 
-                        setCargado(1);
-                    } 
+
+                    
+                    console.log("Vuelo futuro: " + counterFlight);
+                    if(counterFlight === (vuelos.length-1)){
+                        setVuelos(vuelosD);
+                        setCounterFlight(-1);
+                    }
                 }
 
+                if(semaforo){                    
+                    setSemaforo(false);
+                    if( (currentTime.getHours() === 2) ){             
+                        day = day + 1;
+                        loadData();                 
+                    }
+                }
 
-                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 50) ){
-                    setCounterFlight(0);
-                    setCargado(0);
+                if(currentTime.getHours() !== 2){
+                    setSemaforo(true);
                 }
-                
-            }else{
-                
-                if((currentTime.getHours() === 23 && currentTime.getMinutes() >= 50) ){
-                    setCounterFlight(0);
-                    setCargado(0);
-                }
+               
             }
+            
+            
+            
         }
 
         
@@ -361,11 +583,97 @@ const MapBox = ({dataVuelos,startDate,endDate}) => {
     return(
         <div>
 
-           <ClockTime setCurrentTime={setCurrentTime} startDate={startDate}/>
+           <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
 
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginBottom: "10px" }} />
 
             <Legend/>
+
+            <Row style={{marginTop: "30px", marginBottom: "10px", font: "caption", display: "flex", justifyContent: "center"}}>
+                <h3 style={{fontSize: "20px"}}>Resultado de la simulación</h3>
+            </Row>
+
+            <Row style={{marginBottom: "10px"}}>
+                <h3>Seguimiento de los envíos</h3>
+            </Row>
+
+            <Card className="shadow">
+                <Row>                    
+                    <Table className="align-items-center table-flush" responsive>
+                        <thead className="thead-light">
+                            <tr>
+                            <th scope="col">COD. RASTREO</th>
+                            <th scope="col">ESTADO</th>
+                            <th scope="col">PAÍS, CIUDAD ORIGEN</th>
+                            <th scope="col">PAÍS, CIUDAD DESTINO</th>
+                            <th scope="col">FECHA REGISTRO</th>
+                            <th scope="col">ACCIONES</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {paginasItems.map((shipment) => {
+                            return (
+                                <tr key={shipment["id"]}>
+                                <th>{shipment["trackingCode"]}</th>
+                                <td>{shipment["status"]}</td>
+                                <td>
+                                    {
+                                    shipment["originAirport"]["city"]["country"][
+                                        "name"
+                                    ]
+                                    }
+                                    , {shipment["originAirport"]["city"]["name"]}
+                                </td>
+                                <td>
+                                    {
+                                    shipment["destinationAirport"]["city"]["country"][
+                                        "name"
+                                    ]
+                                    }
+                                    , {shipment["destinationAirport"]["city"]["name"]}
+                                </td>                        
+                                <td>{shipment["registerDate"].substring(0, 10)}</td>
+                                
+                                </tr>
+                            );
+                            })}
+                        </tbody>
+                    </Table>
+
+
+                </Row>
+            </Card>
+
+            <CardFooter className="py-4">
+                <nav aria-label="...">
+                <Pagination
+                    className="pagination justify-content-end mb-0"
+                    listClassName="justify-content-end mb-0"
+                >
+                    <PaginationItem
+                        className={pagina - 1 === 0 ? "disabled" : ""}
+                    >
+                    <PaginationLink
+                        onClick={() => handlePrevPage()}
+                        tabIndex="-1"
+                    >
+                        <i className="fas fa-angle-left" />
+                        <span className="sr-only">Previous</span>
+                    </PaginationLink>
+                    </PaginationItem>
+                        {items}
+                    <PaginationItem
+                        className={pagina === paginas ? "disabled" : ""   }
+                    >
+                    <PaginationLink onClick={() => handleNextPage()}>
+                        <i className="fas fa-angle-right" />
+                        <span className="sr-only">Next</span>
+                    </PaginationLink>
+                    </PaginationItem>
+                </Pagination>
+                </nav>
+            </CardFooter>
 
         </div>
     )

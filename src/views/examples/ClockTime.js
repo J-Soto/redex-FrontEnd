@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ReactComponent as ClockIcon } from './../../assets/img/icons/common/clock.svg';
 
-function ClockTime({setCurrentTime,startDate}) {
+function ClockTime({setCurrentTime,startDate,endDate,bandera}) {
     const [dateState, setDateState] = useState(startDate);
     setCurrentTime(dateState);
 
     useEffect(() => {
         // console.log(dateState.getDate())
         // console.log(startDate.getDate()+4)
-        if(dateState.getDate() < startDate.getDate()+4){
-            setInterval(() => setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))), 1500);
+        if(dateState.getDate() < endDate.getDate()){
+            setInterval(() => dateState.getDate() < endDate.getDate()+1 ? setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))) : "", 1500);
             setCurrentTime(dateState);
         }
         

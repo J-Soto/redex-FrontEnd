@@ -300,7 +300,7 @@ class ShipmentSA extends React.Component {
     } else {
       this.setState({ isFiltered: true });
     }
-  };
+  };nfoShipments
   componentWillMount = async () => {
     const shipmentService = new APIShipment();
     const countryService = new APICountry();
@@ -322,6 +322,7 @@ class ShipmentSA extends React.Component {
         pageItems: pageItems,
       });
     }
+    
     if (countries["estado"].length < 3) {
       this.setState({
         countries: countries["resultado"],
@@ -935,6 +936,7 @@ class ShipmentSA extends React.Component {
                     </Pagination>
                   </nav>
                 </CardFooter>
+                
               </Card>
             </div>
           </Row>
