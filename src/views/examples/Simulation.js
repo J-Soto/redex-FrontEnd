@@ -539,7 +539,7 @@ class Simulation extends React.Component {
 						[takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
 						arrival = new Date();
 						[arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);
-
+						
 						utc0P = element.flight.takeOffAirport.city.country.utc;
 						takeOff_hh_utc0 =
 							takeOff_hh - utc0P > 24
@@ -559,13 +559,16 @@ class Simulation extends React.Component {
 							takeOff_hh_utc0 * 100 + parseInt(takeOff_mi)
 						);
 						duracionH =
-							takeOff_hh > arrival_hh
-								? (24 - takeOff_hh + arrival_hh) * 60
-								: (arrival_hh - takeOff_hh) * 60;
+							takeOff_hh_utc0 > arrival_hh_utc0
+								? (24 - takeOff_hh_utc0 + arrival_hh_utc0) * 60
+								: (arrival_hh_utc0 - takeOff_hh_utc0) * 60;
+						
+
 						duracionM =
-							takeOff_mi > arrival_mi
-								? 60 - takeOff_mi + arrival_mi
-								: arrival_mi - takeOff_mi;
+							parseInt(takeOff_mi) > parseInt(arrival_mi)
+								? (60 - parseInt(takeOff_mi) + parseInt(arrival_mi))
+								: (parseInt(arrival_mi) - parseInt(takeOff_mi));
+
 						duracionT = Math.round(((duracionH + duracionM) * 1.6) / 10);
 
 						capacidadUsada =

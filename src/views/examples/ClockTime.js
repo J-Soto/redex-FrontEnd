@@ -6,14 +6,12 @@ function ClockTime({setCurrentTime,startDate,endDate,bandera}) {
     setCurrentTime(dateState);
 
     useEffect(() => {
-        // console.log(dateState.getDate())
-        // console.log(startDate.getDate()+4)
         if(dateState.getDate() < endDate.getDate()){
-            setInterval(() => dateState.getDate() < endDate.getDate()+1 ? setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))) : "", 1500);
+            setInterval(() => (dateState.getDate() < endDate.getDate()+1 && bandera) ? setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))) : "", 1500);
             setCurrentTime(dateState);
         }
         
-    }, []);
+    }, [bandera]);
 
     return (
         <div style={{display: "flex", alignItems: "center", justifyContent: "center"}}>

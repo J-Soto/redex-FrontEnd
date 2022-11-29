@@ -51,17 +51,19 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     const [paginasItems, setPaginasItems] = useState([]);
     const [semaforo, setSemaforo] = useState(true);
     const [cargado, setCargado] = useState(true);
+    const [respuesta, setRespuesta] = useState(true);
+
     const shipmentService = new APIShipment();
 
     let archivo_vuelos;
     let cantVuelos = 50;
     let steps = 100;
-    let counter = dataVuelos.length;
+    let counter = 0;
     let day = 0;
     let vuelosDatos = [];
     let pointerId = 0;
     let cargando = true;
-    let respuesta = true;
+  
     let iniPage = 0;
     let finPage = 10;
     let items = [];
@@ -69,12 +71,12 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
     
     
-    const addFlight = (pointerId) => { 
+    const addFlight = (vuelo, counterFlight, start, duracion) => { 
 
-        var vuelosPointer = vuelos.filter(function (el) { return el.id >= (pointerId) });
+        // var vuelosPointer = vuelos.filter(function (el) { return el.id >= (pointerId) });
         
 
-        vuelosPointer.forEach((vuelo) =>{
+        // vuelos.forEach((vuelo) =>{
             const route = {
                 type: 'FeatureCollection',
                 features: [
@@ -119,21 +121,21 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
             }
     
             route.features[0].geometry.coordinates = arc;
-    
-            mapBox.current.on('load', function() {    
-                mapBox.current.addSource("route"+vuelo.id, {
+
+            //mapBox.current.on('load', function() {    
+                mapBox.current.addSource("route"+counterFlight, {
                     type: "geojson",
                     data: route,
                 });
         
-                mapBox.current.addSource("point"+vuelo.id, {
+                mapBox.current.addSource("point"+counterFlight  , {
                     type: "geojson",
                     data: point,
                 });
         
                 mapBox.current.addLayer({
-                    id: "route"+vuelo.id,
-                    source: "route"+vuelo.id,
+                    id: "route"+counterFlight,
+                    source: "route"+counterFlight,
                     type: "line",
                     paint: {
                         "line-width": 1.5,
@@ -142,8 +144,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 });
             
                 mapBox.current.addLayer({
-                    id: "point"+vuelo.id,
-                    source: "point"+vuelo.id,
+                    id: "point"+counterFlight,
+                    source: "point"+counterFlight,
                     type: "symbol",
                     layout: {
                         "icon-image": vuelo.capacidadEmpleada <= 20 ? "plane1" : vuelo.capacidadEmpleada <= 60 ? "plane2" : "plane3" ,
@@ -155,9 +157,9 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     }
                 });    
     
-            })   
+            //})   
 
-            mapBox.current.on('mouseenter', 'point'+vuelo.id, (e) => {      
+            mapBox.current.on('mouseenter', 'point'+counterFlight, (e) => {      
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const description = e.features[0].properties.description;
                 popup.setLngLat(coordinates).setHTML(description).addTo(mapBox.current);
@@ -167,13 +169,16 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 popup.remove();
             });
 
-        })
+            setTimeout(() => {                 
+                animate(counterFlight, start, duracion);
+            }, 100);
+
+        // })
     }
 
     const animate = (featureIdx, cntr, time) => {
 
         setTimeout(() => {
-
             if (!mapBox.current.getLayer("route"+featureIdx)){
                 return;
             }else{
@@ -194,9 +199,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     }
                     return;
                 }
-            }
-
-            
+            }   
 
             mapBox.current.getSource("point"+featureIdx)._options.data.features[0].geometry.coordinates = mapBox.current.getSource("route"+featureIdx)._data.features[0].geometry.coordinates[cntr];
             
@@ -270,7 +273,6 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     
             let uploadFile;
             console.log("procesando zip");
-            console.log(zip);
                 
             const uploadFileAns = await fetch(
                 "http://localhost:8090/dp1/api/dispatch/upload/zip",
@@ -281,7 +283,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
             
             if (uploadFile["estado"].length < 3) {
                 console.log("entro");
-                respuesta = true;
+                setRespuesta(true);
                 
                 const simulacion = await fetch(
                     "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2,
@@ -313,10 +315,10 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                         caltakeOffTime,
                         capacidadUsada;
                     
-                    console.log(archivo_vuelos);
                     archivo_vuelos = archivo_vuelos["resultado"];    
                     console.log(archivo_vuelos);
     
+                    counter = 0;
                     archivo_vuelos.forEach((element) => {
                         takeOff = new Date();
                         [takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
@@ -345,10 +347,12 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                             takeOff_hh > arrival_hh
                                 ? (24 - takeOff_hh + arrival_hh) * 60
                                 : (arrival_hh - takeOff_hh) * 60;
+
                         duracionM =
-                            takeOff_mi > arrival_mi
-                                ? 60 - takeOff_mi + arrival_mi
-                                : arrival_mi - takeOff_mi;
+							parseInt(takeOff_mi) > parseInt(arrival_mi)
+								? (60 - parseInt(takeOff_mi) + parseInt(arrival_mi))
+								: (parseInt(arrival_mi) - parseInt(takeOff_mi));
+
                         duracionT = Math.round(((duracionH + duracionM) * 1.6) / 10);
     
                         capacidadUsada =
@@ -374,7 +378,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                             id: counter,
                             duracion: duracionT,
                             takeOffTime: caltakeOffTime,
-                            idReal: element.idFlight,
+                            idReal: element.flight.idFlight,
                         });
     
                         counter = counter + 1;
@@ -387,7 +391,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     
             }else{
                 if (uploadFile["estado"].length > 6){
-                    console.log("TE CAISTE WACHO :c");
+                    console.log("COLAPSO LOGISTICO  :c");
                 } 
             }
 
@@ -483,8 +487,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
     useEffect(() =>{        
         if(vuelos.length > 0){
-            console.log(vuelos);            
-            addFlight(pointerId);            
+            console.log(vuelos);
             dispatchTable();
         }
     }, [vuelos])
@@ -539,19 +542,16 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
-                    setTimeout(() => {
-                        animate(counterFlight, 0, vuelos[counterFlight].duracion*8.9);
-                    }, 400);
+                    addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*8.9);
+                    
     
                     if (Math.random() > 0.01) {
                         incrementCounter();
                     }
-
                     
-                    console.log("Vuelo futuro: " + counterFlight);
                     if(counterFlight === (vuelos.length-1)){
                         setVuelos(vuelosD);
-                        setCounterFlight(-1);
+                        setCounterFlight(0);
                     }
                 }
 
@@ -565,6 +565,10 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
                 if(currentTime.getHours() !== 2){
                     setSemaforo(true);
+                }
+
+                if(currentTime.getHours() === 23 && vuelosD.length === 0){
+                    setRespuesta(false);
                 }
                
             }
