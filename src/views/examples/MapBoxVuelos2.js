@@ -652,8 +652,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 h = currentTime.getHours();
                 m = currentTime.getMinutes();
 
-                // if(m >= 50)
-                //     analyzeWarehouse(h, m, currentTime);
+                if(m >= 50)
+                    analyzeWarehouse(h, m, currentTime);
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
