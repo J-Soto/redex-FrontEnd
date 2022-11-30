@@ -15,7 +15,8 @@ import Legend from './Legend';
 import APIShipment from  "../../apis/APIShipment.js";
 
 import {	
-	Row,
+	Alert,
+    Row,
     Card,
     CardFooter,
     Table,	
@@ -43,6 +44,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     //const [currentTime, setCurrentTime] = useState(new Date())
     const [currentTime, setCurrentTime] = useState(startDate)
     const [counterFlight, setCounterFlight] = useState(-1);
+    const [counterFlightA, setCounterFlightA] = useState(-1);
     const [vuelos, setVuelos] = useState([]);
     const [vuelosD, setVuelosD] = useState([]);
     const [envios, setEnvios] = useState([]);
@@ -52,6 +54,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     const [semaforo, setSemaforo] = useState(true);
     const [cargado, setCargado] = useState(true);
     const [respuesta, setRespuesta] = useState(true);
+    const [simulacion, setSimulacion] = useState(true);
 
     const shipmentService = new APIShipment();
 
@@ -97,7 +100,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     {
                         type: 'Feature',
                         properties: {
-                            description: `FROM: ${vuelo.takeOffAirportD} To: ${vuelo.arrivalAirportD} ID: ${vuelo.id}`
+                            description: `FROM: <b>${vuelo.takeOffAirportD}</b> TO: <b>${vuelo.arrivalAirportD}</b> USED CAPACITY: <b>${vuelo.capacidadEmpleada}%</b>`
                         },
                         geometry: {
                             type: 'Point',
@@ -139,7 +142,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     type: "line",
                     paint: {
                         "line-width": 1.5,
-                        "line-color": "#007cbf",
+                        "line-color": vuelo.capacidadEmpleada <= 20 ? "#008000" : vuelo.capacidadEmpleada <= 60 ? "#FFFF00" : "#B22222" ,
                     },
                 });
             
@@ -165,7 +168,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 popup.setLngLat(coordinates).setHTML(description).addTo(mapBox.current);
             });
           
-            mapBox.current.on('mouseleave', 'point'+vuelo.id, () => {
+            mapBox.current.on('mouseleave', 'point'+counterFlight, () => {
                 popup.remove();
             });
 
@@ -253,6 +256,9 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
             var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
     
             var new_date2 = JSON.stringify(new_date._d);
+
+            console.log(new_date2);
+            console.log(currentTime.getHours());
             
             const formData = new FormData();
             formData.append("file", zip);
@@ -542,16 +548,23 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
-                    addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*8.9);
-                    
-    
-                    if (Math.random() > 0.01) {
-                        incrementCounter();
+                    console.log("Vuelo antiguo: " + counterFlightA);
+                    if (counterFlightA !== counterFlight){
+                        addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*8.9);
+                        setCounterFlightA(counterFlightA+1);
                     }
+                                        
+    
+                    // if (Math.random() > 0.01) {
+                    //     incrementCounter();
+                    // }
                     
+                    setCounterFlight(counterFlight+1);
+
                     if(counterFlight === (vuelos.length-1)){
                         setVuelos(vuelosD);
                         setCounterFlight(0);
+                        setCounterFlightA(-1);
                     }
                 }
 
@@ -575,6 +588,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
             
             
             
+        }else{
+            setSimulacion(false);
         }
 
         
@@ -586,6 +601,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
    
     return(
         <div>
+
+            {!simulacion ? <Alert style={{display: "flex", justifyContent: "center", fontSize:"20px"}}>Simulacion terminada correctamente</Alert> : ""}
 
            <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
 

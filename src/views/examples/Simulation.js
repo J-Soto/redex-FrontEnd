@@ -671,18 +671,34 @@ class Simulation extends React.Component {
 				// 		dataChart3: { ok: 0, fails: 0, late: 0 },
 				// 	});
 				// }
-			} else {
-				let alertMessage = (
-					<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
-						El archivo no se subió de manera correcta
-					</Alert>
-				);
-
-				this.setState({
-					messageConfirmation: alertMessage,
-					loading: false,
-				});
 			}
+			else{
+				if(uploadFile["estado"] === "COLAPSO"){
+					let alertMessage = (
+						<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
+							COLAPSO LOGÍSTICO
+						</Alert>
+					);
+
+					this.setState({
+						messageConfirmation: alertMessage,
+						loading: false,
+					});
+				}
+				else {
+					let alertMessage = (
+						<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
+							El archivo no se subió de manera correcta
+						</Alert>
+					);
+
+					this.setState({
+						messageConfirmation: alertMessage,
+						loading: false,
+					});
+				}
+			} 
+				
 		} else {
 			let alertMessage = (
 				<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
