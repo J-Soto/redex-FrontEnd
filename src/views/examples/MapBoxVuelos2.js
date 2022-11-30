@@ -436,6 +436,19 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         setPagina(pagina+1);         
     }
 
+    const analyzeWarehouse = async (hour, minute, time) => {
+
+        var tiempo = moment(time, "DD-MM-YYYY").subtract(5, 'hours');
+        tiempo = JSON.stringify(tiempo._d);
+
+        console.log(tiempo);
+
+        const simulacion = await fetch(
+            "http://localhost:8090/dp1/api/airport/flight/plan/recibirHora?hora=" + tiempo,
+          
+        );
+    }
+
     
     useEffect(() => {   
         if(mapBox.current) return;
@@ -502,7 +515,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         if(envios.length > 0){
             
             items = [];
-            dispatchTable();
+            // dispatchTable();
            
             if (pagina % 10 === 0) {
                 x = Math.floor(pagina / 10) - 1;
@@ -539,12 +552,15 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
     useEffect(() =>{
         if(currentTime.getDate() < endDate.getDate()+1){
+
             if(counterFlight >= 0 && vuelos.length > 0){
                 let h, m;            
 
                 h = currentTime.getHours();
                 m = currentTime.getMinutes();
 
+                if(m >= 50)
+                    analyzeWarehouse(h, m, currentTime);
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
