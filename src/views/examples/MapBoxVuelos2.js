@@ -8,6 +8,7 @@ import * as turf from '@turf/turf';
 import PlaneImage1 from '../../assets/img/icons/common/airplane-mode.png'
 import PlaneImage2 from '../../assets/img/icons/common/airplane-mode3.png'
 import PlaneImage3 from '../../assets/img/icons/common/airplane-mode4.png'
+import AirportImage from '../../assets/img/icons/common/Airport.png'
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ClockTime from './ClockTime';
@@ -55,6 +56,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     const [cargado, setCargado] = useState(true);
     const [respuesta, setRespuesta] = useState(true);
     const [simulacion, setSimulacion] = useState(true);
+    const [aeropuerto, setAeropuertos] = useState([]);
 
     const shipmentService = new APIShipment();
 
@@ -232,7 +234,6 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
        }, time);
         
     }
-
 
     const incrementCounter = useCallback(() => {
         setCounterFlight((v) => v + 1);
@@ -423,7 +424,6 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 		return orderedFlights;
 	}
 
-
     const handlePrevPage = () => {
         var pageItems = envios.slice( iniPage - 10,  finPage - 10 );
         setPaginasItems(pageItems);
@@ -444,10 +444,102 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         console.log(tiempo);
 
         const simulacion = await fetch(
-            "http://localhost:8090/dp1/api/airport/flight/plan/recibirHora?hora=" + tiempo,
-          
+            "http://localhost:8090/dp1/api/airport/flight/plan/recibirHora?hora=" + tiempo, 
         );
+
+        var respuestaAPI = await simulacion.json();
+                
+        console.log(respuestaAPI);
+
+        if (respuestaAPI["estado"].length < 3 ) {
+            console.log("HOLA");
+        }else{
+            console.log("ERROR");
+        }
+        
     }
+
+    const cargarData = async () => {
+		var requestOptions = {
+			method: "GET",
+		};
+
+		const uploadFileAns = await fetch(
+			"http://localhost:8090/dp1/api/airport/all",
+			requestOptions
+		);
+
+		archivo_vuelos = await uploadFileAns.json();
+        var airport = archivo_vuelos["resultado"];
+		// setAeropuertos(archivo_vuelos["resultado"]);
+
+        airport.forEach((data) =>{
+            let arrayHtml = [];
+
+            arrayHtml.push(document.createElement("div"));
+            arrayHtml[0].className = "marker";
+            arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
+            arrayHtml[0].style.width = `25px`;
+            arrayHtml[0].style.height = `25px`;
+            arrayHtml[0].style.backgroundSize = "100%";
+            arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
+
+            new mapboxgl.Marker(arrayHtml[0])
+            .setLngLat([data.longitude, data.latitude])
+            .setPopup(
+                new mapboxgl.Popup({ offset: 25 })
+                .setHTML(
+                    `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p>`
+                )
+            )
+            .addTo(mapBox.current);
+
+            // if(data.city.country.continent.id === 1){
+            //     new mapboxgl.Marker(arrayHtml[0])
+            //     .setLngLat([data.longitude, data.latitude])
+            //     .setPopup(
+            //         new mapboxgl.Popup({ offset: 25 }) // add popups
+            //         .setHTML(
+            //             `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p>`
+            //         )
+            //     )
+            //     .addTo(mapBox.current);
+            // }else{
+            //     if(airport.city.country.continent.id === 2){
+            //         arrayHtml.push(document.createElement("div"));
+            //         arrayHtml[0].className = "marker";
+            //         arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
+            //         arrayHtml[0].style.width = `30px`;
+            //         arrayHtml[0].style.height = `30px`;
+            //         arrayHtml[0].style.backgroundSize = "100%";
+            //         arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
+    
+
+            //         new mapboxgl.Marker(arrayHtml[0])
+            //         .setLngLat([airport.longitude, airport.latitude])
+            //         .setPopup(
+            //             new mapboxgl.Popup({ offset: 25 }) // add popups
+            //             .setHTML(
+            //                 `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
+            //             )
+            //         )
+            //         .addTo(mapBox.current);         
+            //     }else{
+            //         new mapboxgl.Marker({ color: '#85DD86' })
+            //         .setLngLat([airport.longitude, airport.latitude])
+            //         .setPopup(
+            //             new mapboxgl.Popup({ offset: 25 }) // add popups
+            //             .setHTML(
+            //                 `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
+            //             )
+            //         )
+            //         .addTo(mapBox.current); 
+            //     }                      
+            // }           
+            
+        })
+
+	};
 
     
     useEffect(() => {   
@@ -489,6 +581,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         if(dataVuelos.length > 0){
             setCounterFlight(counterFlight+1);
             dispatchTable();
+            cargarData();
         }
 
     },[]);
@@ -559,8 +652,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 h = currentTime.getHours();
                 m = currentTime.getMinutes();
 
-                if(m >= 50)
-                    analyzeWarehouse(h, m, currentTime);
+                // if(m >= 50)
+                //     analyzeWarehouse(h, m, currentTime);
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
