@@ -8,7 +8,9 @@ import * as turf from '@turf/turf';
 import PlaneImage1 from '../../assets/img/icons/common/airplane-mode.png'
 import PlaneImage2 from '../../assets/img/icons/common/airplane-mode3.png'
 import PlaneImage3 from '../../assets/img/icons/common/airplane-mode4.png'
-import AirportImage from '../../assets/img/icons/common/Airport.png'
+import AirportImage1 from '../../assets/img/icons/common/Airport_green2.png'
+import AirportImage2 from '../../assets/img/icons/common/Airport_yellow.png'
+import AirportImage3 from '../../assets/img/icons/common/Airport_red.png'
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import ClockTime from './ClockTime';
@@ -17,14 +19,19 @@ import APIShipment from  "../../apis/APIShipment.js";
 
 import {	
 	Alert,
-    Row,
+    Button,
     Card,
     CardFooter,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    Row,
     Table,	
     Pagination,
     PaginationItem,
     PaginationLink,
 } from "reactstrap";
+
 
 mapboxgl.workerClass = MapboxWorker;
 
@@ -66,9 +73,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     let counter = 0;
     let day = 0;
     let vuelosDatos = [];
-    let pointerId = 0;
-    let cargando = true;
-  
+   
     let iniPage = 0;
     let finPage = 10;
     let items = [];
@@ -102,7 +107,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     {
                         type: 'Feature',
                         properties: {
-                            description: `FROM: <b>${vuelo.takeOffAirportD}</b> TO: <b>${vuelo.arrivalAirportD}</b> USED CAPACITY: <b>${vuelo.capacidadEmpleada}%</b>`
+                            description: `FROM: <b>${vuelo.takeOffAirportD}</b> TO: <b>${vuelo.arrivalAirportD}</b> USED CAPACITY: <b>${vuelo.capacidadEmpleada}%</b> ID FLIGHT: <b>${counterFlight}</b>`
                         },
                         geometry: {
                             type: 'Point',
@@ -154,7 +159,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     type: "symbol",
                     layout: {
                         "icon-image": vuelo.capacidadEmpleada <= 20 ? "plane1" : vuelo.capacidadEmpleada <= 60 ? "plane2" : "plane3" ,
-                        "icon-size": 1.5,
+                        "icon-size": 1.3,
                         'icon-rotate': ['get', 'bearing'],
                         "icon-rotation-alignment": "map",
                         "icon-allow-overlap": true,
@@ -258,14 +263,14 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     
             var new_date2 = JSON.stringify(new_date._d);
 
-            console.log(new_date2);
-            console.log(currentTime.getHours());
+            // console.log(new_date2);
+            // console.log(currentTime.getHours());
             
             const formData = new FormData();
             formData.append("file", zip);
             formData.append("date", new_date2);    
             
-            console.log(new_date2);
+            // console.log(new_date2);
 
             var requestOptions = {
                 method: "POST",
@@ -441,22 +446,12 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         var tiempo = moment(time, "DD-MM-YYYY").subtract(5, 'hours');
         tiempo = JSON.stringify(tiempo._d);
 
-        console.log(tiempo);
-
         const simulacion = await fetch(
             "http://localhost:8090/dp1/api/airport/flight/plan/recibirHora?hora=" + tiempo, 
         );
 
-        var respuestaAPI = await simulacion.json();
-                
-        console.log(respuestaAPI);
-
-        if (respuestaAPI["estado"].length < 3 ) {
-            console.log("HOLA");
-        }else{
-            console.log("ERROR");
-        }
-        
+        var respuestaAPI = await simulacion.json();                
+       
     }
 
     const cargarData = async () => {
@@ -475,68 +470,25 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
         airport.forEach((data) =>{
             let arrayHtml = [];
+            let usedCapacity = parseFloat(data.warehouse.occupiedCapacity / data.warehouse.capacity)*100;
 
             arrayHtml.push(document.createElement("div"));
             arrayHtml[0].className = "marker";
-            arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
-            arrayHtml[0].style.width = `25px`;
-            arrayHtml[0].style.height = `25px`;
+            arrayHtml[0].style.backgroundImage = usedCapacity <= 10 ? `url(${AirportImage1})` : usedCapacity <= 60 ? `url(${AirportImage2})` : `url(${AirportImage3})` ;
+            arrayHtml[0].style.width = `16px`;
+            arrayHtml[0].style.height = `16px`;
             arrayHtml[0].style.backgroundSize = "100%";
-            arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
+            //arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
 
             new mapboxgl.Marker(arrayHtml[0])
             .setLngLat([data.longitude, data.latitude])
             .setPopup(
                 new mapboxgl.Popup({ offset: 25 })
                 .setHTML(
-                    `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p>`
+                    `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p><p>${'Used Capacity:' + usedCapacity +'%'}</p>`
                 )
             )
-            .addTo(mapBox.current);
-
-            // if(data.city.country.continent.id === 1){
-            //     new mapboxgl.Marker(arrayHtml[0])
-            //     .setLngLat([data.longitude, data.latitude])
-            //     .setPopup(
-            //         new mapboxgl.Popup({ offset: 25 }) // add popups
-            //         .setHTML(
-            //             `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p>`
-            //         )
-            //     )
-            //     .addTo(mapBox.current);
-            // }else{
-            //     if(airport.city.country.continent.id === 2){
-            //         arrayHtml.push(document.createElement("div"));
-            //         arrayHtml[0].className = "marker";
-            //         arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
-            //         arrayHtml[0].style.width = `30px`;
-            //         arrayHtml[0].style.height = `30px`;
-            //         arrayHtml[0].style.backgroundSize = "100%";
-            //         arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
-    
-
-            //         new mapboxgl.Marker(arrayHtml[0])
-            //         .setLngLat([airport.longitude, airport.latitude])
-            //         .setPopup(
-            //             new mapboxgl.Popup({ offset: 25 }) // add popups
-            //             .setHTML(
-            //                 `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
-            //             )
-            //         )
-            //         .addTo(mapBox.current);         
-            //     }else{
-            //         new mapboxgl.Marker({ color: '#85DD86' })
-            //         .setLngLat([airport.longitude, airport.latitude])
-            //         .setPopup(
-            //             new mapboxgl.Popup({ offset: 25 }) // add popups
-            //             .setHTML(
-            //                 `<h3>${airport.description}</h3><p>${airport.city.name + ', ' + airport.city.country.name}</p>`
-            //             )
-            //         )
-            //         .addTo(mapBox.current); 
-            //     }                      
-            // }           
-            
+            .addTo(mapBox.current);            
         })
 
 	};
@@ -590,7 +542,6 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
     useEffect(() =>{
         if(dataVuelos.length>0){
-            // dataVuelos.splice(cantVuelos);
             setVuelos(dataVuelos);   
             console.log(vuelos);
 
@@ -657,7 +608,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
                 if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
                     console.log("Vuelo actual: " + counterFlight);
-                    console.log("Vuelo antiguo: " + counterFlightA);
+                    // console.log("Vuelo antiguo: " + counterFlightA);
                     if (counterFlightA !== counterFlight){
                         addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*8.9);
                         setCounterFlightA(counterFlightA+1);
@@ -674,6 +625,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                         setVuelos(vuelosD);
                         setCounterFlight(0);
                         setCounterFlightA(-1);
+                        console.log("HOLA CAMBIO VUELOS");
                     }
                 }
 
@@ -681,7 +633,8 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                     setSemaforo(false);
                     if( (currentTime.getHours() === 2) ){             
                         day = day + 1;
-                        loadData();                 
+                        loadData();       
+                        cargarData();          
                     }
                 }
 
@@ -692,6 +645,9 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 if(currentTime.getHours() === 23 && vuelosD.length === 0){
                     setRespuesta(false);
                 }
+
+                // console.log(respuesta);
+                // console.log(vuelosD.length);
                
             }
             
@@ -713,11 +669,38 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
             {!simulacion ? <Alert style={{display: "flex", justifyContent: "center", fontSize:"20px"}}>Simulacion terminada correctamente</Alert> : ""}
 
-           <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
+            <>
+                <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
 
+                {/* <InputGroup className="mb-4 justify-content-center">
+                                <Input
+                                placeholder="Buscar por código de vuelo"
+                                type="text"
+                                name="flightCode"
+                                //value={this.state.trackingCode}
+                                onChange={(ev) => {
+                                    this.handleChange(ev);
+                                }}
+                                />
+                                <InputGroupAddon addonType="prepend">
+                                <Button
+                                    className="btn-icon btn-2"
+                                    color="primary"
+                                    outline
+                                    type="button"
+                                    // onClick={this.findFlightByCode}
+                                >
+                                    <span className="btn-inner--icon">
+                                    <i className="ni ni-zoom-split-in" />
+                                    </span>
+                                </Button>
+                                </InputGroupAddon>
+                </InputGroup> */}
+            </>
+            
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginBottom: "10px" }} />
 
-            <Legend/>
+            <Legend tipo={1}/>
 
             <Row style={{marginTop: "30px", marginBottom: "10px", font: "caption", display: "flex", justifyContent: "center"}}>
                 <h3 style={{fontSize: "20px"}}>Resultado de la simulación</h3>

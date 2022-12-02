@@ -57,22 +57,51 @@ class Flight extends React.Component {
 
   findFlightByCode = async () => {
     //Buscar vuelo por código de vuelo
-    const infoFlight = await serviceAirport.findFlightById(
-      this.state.flightCode
-    );
-    const message = infoFlight["estado"];
-    if (message.length < 3) {
-      //Ok
-      this.setState({
-        infoFlight: infoFlight["resultado"],
-        foundFlight: true,
-        pageItems: infoFlight["resultado"],
-      });
-    } else {
-      this.setState({
-        foundFlight: false,
-      });
+    let infoFlight;
+
+    
+
+    if (this.state.flightCode === '0' || this.state.flightCode === ''){
+      console.log("TODOS");
+      infoFlight = await serviceAirport.queryAllFlights();
+
+      if (infoFlight["estado"].length < 3) {
+        let pageItems = infoFlight["resultado"].slice(
+          this.state.iniPage,
+          this.state.finPage
+        );  
+        console.log(pageItems);
+        this.setState({
+          infoFlights: infoFlight["resultado"],
+          pages: Math.ceil(infoFlight["resultado"].length / 10),
+          pageItems: pageItems,
+          foundFlight: false,
+        });
+      }
+      for (let i = 0; i < this.state.pages; i++) {
+        this.state.listPages.push(i + 1);
+      } 
+
+    }else{
+      console.log("FILTRADO");
+      infoFlight = await serviceAirport.findFlightById(
+        this.state.flightCode
+      );
+
+      if (infoFlight["estado"].length < 3) {
+        this.setState({
+          infoFlight: infoFlight["resultado"],
+          foundFlight: true,
+          pageItems: infoFlight["resultado"],
+        });
+      } else {
+        this.setState({
+          foundFlight: false,
+        });
+      }
     }
+   
+   
   };
   saveCapacity = async (idFlight) => {
     const resultSave = await serviceAirport.editCapacity(
@@ -108,8 +137,6 @@ class Flight extends React.Component {
   componentWillMount = async () => {
     const resultFlights = await serviceAirport.queryAllFlights();
 
-    
-
     if (resultFlights["estado"].length < 3) {
       let pageItems = resultFlights["resultado"].slice(
         this.state.iniPage,
@@ -121,7 +148,6 @@ class Flight extends React.Component {
         pageItems: pageItems,
       });
     }
-    let listPages = [];
     for (let i = 0; i < this.state.pages; i++) {
       this.state.listPages.push(i + 1);
     }

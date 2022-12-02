@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import AirportImage from '../../assets/img/icons/common/Airport.png'
+import AirportImage1 from '../../assets/img/icons/common/Airport_blue.png'
+import AirportImage2 from '../../assets/img/icons/common/Airport_purple.png'
+import Legend from './Legend';
 import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 import 'mapbox-gl/dist/mapbox-gl.css'; 
 
@@ -41,16 +43,16 @@ const MapBox = ({data}) => {
             projection: projection
         });
 
-        mapBox.current.loadImage(AirportImage,
-            (error, image) => {
-            if (error) throw error;
+        // mapBox.current.loadImage(AirportImage,
+        //     (error, image) => {
+        //     if (error) throw error;
               
-            // Add the image to the map style.
-            mapBox.current.addImage('airport', image, {
-              "sdf": "true"
-            });
-          }
-        );
+        //     // Add the image to the map style.
+        //     mapBox.current.addImage('airport', image, {
+        //       "sdf": "true"
+        //     });
+        //   }
+        // );
 
         mapBox.current.setRenderWorldCopies(false);
 
@@ -60,11 +62,11 @@ const MapBox = ({data}) => {
             if(airport.city.country.continent.id === 1){
                 arrayHtml.push(document.createElement("div"));
                 arrayHtml[0].className = "marker";
-                arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
-                arrayHtml[0].style.width = `30px`;
-                arrayHtml[0].style.height = `30px`;
+                arrayHtml[0].style.backgroundImage = `url(${AirportImage1})`;
+                arrayHtml[0].style.width = `16px`;
+                arrayHtml[0].style.height = `16px`;
                 arrayHtml[0].style.backgroundSize = "100%";
-                arrayHtml[0].style.filter = "invert(21%) sepia(79%) saturate(6123%) hue-rotate(355deg) brightness(92%) contrast(116%)";    
+                //arrayHtml[0].style.filter = "invert(10%) sepia(70%) saturate(3000%) hue-rotate(355deg) brightness(80%) contrast(10%)";    
 
                 new mapboxgl.Marker(arrayHtml[0])
                 .setLngLat([airport.longitude, airport.latitude])
@@ -79,11 +81,11 @@ const MapBox = ({data}) => {
                 if(airport.city.country.continent.id === 2){
                     arrayHtml.push(document.createElement("div"));
                     arrayHtml[0].className = "marker";
-                    arrayHtml[0].style.backgroundImage = `url(${AirportImage})`;
-                    arrayHtml[0].style.width = `30px`;
-                    arrayHtml[0].style.height = `30px`;
+                    arrayHtml[0].style.backgroundImage = `url(${AirportImage2})`;
+                    arrayHtml[0].style.width = `16px`;
+                    arrayHtml[0].style.height = `16px`;
                     arrayHtml[0].style.backgroundSize = "100%";
-                    arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
+                    //arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
     
 
                     new mapboxgl.Marker(arrayHtml[0])
@@ -120,7 +122,10 @@ const MapBox = ({data}) => {
    
     return(
         <>
-            <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginTop: "10px" }} />
+            <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginTop: "10px", marginBottom: "10px" }} />
+
+            <Legend tipo={0}/>
+
         </>
     )
 }

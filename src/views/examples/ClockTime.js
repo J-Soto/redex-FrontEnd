@@ -10,6 +10,7 @@ function ClockTime({setCurrentTime,startDate,endDate,bandera}) {
             setInterval(() => (dateState.getDate() < endDate.getDate()+1 && bandera) ? setDateState(new Date(dateState.setMinutes(dateState.getMinutes()+10))) : "", 1500);
             setCurrentTime(dateState);
         }
+        console.log(bandera);
         
     }, [bandera]);
 
