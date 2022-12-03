@@ -371,13 +371,15 @@ class Simulation extends React.Component {
 
 	submitFile = async () => {
 		this.setState({ loading: true });
-		const fileInput = document.querySelector("#input-fileSelectorPackages");
+		// const fileInput = document.querySelector("#input-fileSelectorPackages");
 		const formData = new FormData();
 
-		formData.append("file", fileInput.files[0]);
+		// formData.append("file", fileInput.files[0]);
 		formData.append("date", startDateSimuVar);
+		formData.append("horai", "00:00");
+		formData.append("horaf", "24:00");
 
-		this.setState({archivoZip: fileInput.files[0]});
+		// this.setState({archivoZip: fileInput.files[0]});
 
 		console.log(this.state.archivoZip);
 
@@ -417,6 +419,8 @@ class Simulation extends React.Component {
 				);
 
 				archivo_vuelos = await simulacion.json();
+
+				console.log(archivo_vuelos["resultado"]);
 
 				let counter = 0;
 
