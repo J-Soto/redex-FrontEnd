@@ -26,13 +26,13 @@ const Legend = ({tipo}) => {
                             <p>Capacidad empleada hasta un 20%</p>
                         </div>   
                         <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                            <img width="25" height="25" src={PlaneImage2} alt="Avion amarillo" style={{marginTop: "10px"}} />
-                            <img width="25" height="25" src={AirportImage4} alt="Almacen amarillo" />
+                            <img width="25" height="25" src={PlaneImage2} alt="Avion amarillo" />
+                            <img width="25" height="25" src={AirportImage4} alt="Almacen amarillo" style={{marginTop: "10px"}} />
                             <p>Capacidad empleada hasta un 60%</p>
                         </div>  
                         <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                            <img width="25" height="25" src={PlaneImage3} alt="Avion rojo" style={{marginTop: "10px"}} />
-                            <img width="25" height="25" src={AirportImage5} alt="Almacen rojo" />
+                            <img width="25" height="25" src={PlaneImage3} alt="Avion rojo" />
+                            <img width="25" height="25" src={AirportImage5} alt="Almacen rojo" style={{marginTop: "10px"}} />
                             <p>Capacidad empleada más de 60%</p>
                         </div>     
                     </>

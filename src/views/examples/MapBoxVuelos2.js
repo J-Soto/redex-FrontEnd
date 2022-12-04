@@ -65,6 +65,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [simulacion, setSimulacion] = useState(true);
     const [aeropuerto, setAeropuertos] = useState([]);
     const [multi, setMulti] = useState(1);
+    const [sumaDia, setsumaDia] = useState(0);
 
     const shipmentService = new APIShipment();
 
@@ -253,13 +254,12 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
         }
     }
 
-    const loadData = async () => {
-        console.log("Hola desde loadData");
+    const loadData = async (h) => {
         if(semaforo){
             console.log("Entre a loadData");
 
             //var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
-            var new_date = moment(startDate, "DD-MM-YYYY")
+            var new_date = moment(startDate, "DD-MM-YYYY").add(sumaDia, 'day');
             var new_date2 = JSON.stringify(new_date._d);
 
             var calculo =  bloque*multi
@@ -268,13 +268,11 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             calculo =  bloque*(multi + 1)
             var horaf = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
 
-            setMulti(multi + 1);
-
-            // horai = JSON.stringify(horai);
-            // horaf = JSON.stringify(horaf);
-
-            console.log(horai);
-            console.log(horaf);
+            if(h === 14){
+                setMulti(0);
+            }else{
+                setMulti(multi + 1);
+            }            
             
             const formData = new FormData();
             formData.append("date", new_date2);    
@@ -309,7 +307,6 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 console.log("entro");
                 setRespuesta(true);
                 
-                console.log("HOLA");
                 const simulacion = await fetch(
                     `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
                 );
@@ -642,18 +639,18 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
                 if(semaforo){                    
                     setSemaforo(false);
-                    if( (currentTime.getHours() === 2 || currentTime.getHours() === 8 || currentTime.getHours() === 14 ) ){             
+                    if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
                         day = day + 1;
-                        loadData();       
+                        loadData(h);       
                         cargarData();          
                     }
                 }
 
-                if(currentTime.getHours() !== 2 && currentTime.getHours() !== 8 && currentTime.getHours() !== 14){
+                if(h !== 2 && h !== 8 && h !== 14 && h !== 20){
                     setSemaforo(true);
                 }
 
-                if(currentTime.getHours() === 23 && vuelosD.length === 0){
+                if(h === 23 && vuelosD.length === 0){
                     setRespuesta(false);
                 }
 
