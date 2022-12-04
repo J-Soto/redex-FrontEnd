@@ -371,17 +371,11 @@ class Simulation extends React.Component {
 
 	submitFile = async () => {
 		this.setState({ loading: true });
-		// const fileInput = document.querySelector("#input-fileSelectorPackages");
 		const formData = new FormData();
 
-		// formData.append("file", fileInput.files[0]);
 		formData.append("date", startDateSimuVar);
 		formData.append("horai", "00:00");
-		formData.append("horaf", "24:00");
-
-		// this.setState({archivoZip: fileInput.files[0]});
-
-		console.log(this.state.archivoZip);
+		formData.append("horaf", "06:00");
 
 		var requestOptions = {
 			method: "POST",
@@ -401,7 +395,7 @@ class Simulation extends React.Component {
 				loading: true,
 			});
 
-			console.log("procesando zip");
+			console.log("procesando data");
 			
 			const uploadFileAns = await fetch(
 				"http://localhost:8090/dp1/api/dispatch/upload/zip",
@@ -513,7 +507,7 @@ class Simulation extends React.Component {
 				}
 
 				let alertMessage = (
-					<Alert>El archivo se subió de manera correcta</Alert>
+					<Alert>La simulación inicio de manera correcta</Alert>
 				);
 
 				this.setState({
@@ -601,81 +595,10 @@ class Simulation extends React.Component {
 
 
 	componentWillMount = async () => {
-
 		this.cargarData();
-
 	};
 	queryTimelineMoment = async () => {
-		// if (this.state.queryDate != null) {
-		// 	let year = this.state.queryDate.getFullYear();
-		// 	let month = this.state.queryDate.getMonth();
-		// 	if (month < 10) {
-		// 		month = "0" + (month + 1);
-		// 	}
-		// 	//console.log(month);
 
-		// 	//console.log(this.state.queryDate.getDate());
-		// 	let date = this.state.queryDate.getDate();
-		// 	if (date < 10) {
-		// 		date = "0" + date;
-		// 	}
-
-		// 	//console.log(this.state.queryDate.getHours());
-		// 	let hours = this.state.queryDate.getHours();
-		// 	if (hours < 10) {
-		// 		hours = "0" + hours;
-		// 	}
-		// 	//console.log(hours);
-		// 	//console.log(this.state.queryDate.getMinutes());
-		// 	let min = this.state.queryDate.getMinutes();
-		// 	if (min < 10) {
-		// 		min = "0" + min;
-		// 	}
-		// 	let dateSend = year.toString() + month.toString() + date.toString();
-		// 	let hourSend = hours.toString() + ":" + min.toString();
-		// 	//console.log(typeof dateSend);
-
-		// 	const resultTimeline = await serviceTimeline.getTimeline(
-		// 		dateSend,
-		// 		hourSend,
-		// 		true
-		// 	);
-		// 	//console.log(resultTimeline["resultado"]);
-		// 	let dataChart1 = [],
-		// 		labelsChart1 = [],
-		// 		legendChart1 = [];
-		// 	if (resultTimeline["estado"].length < 3) {
-		// 		resultTimeline["resultado"].map((airport) => {
-		// 			dataChart1.push(airport["percentage"]);
-		// 			labelsChart1.push(airport["code"]);
-		// 			legendChart1.push([
-		// 				airport["code"],
-		// 				airport["city"],
-		// 				airport["country"],
-		// 			]);
-		// 		});
-		// 		//console.log(dataChart1);
-		// 		//console.log(labelsChart1);
-		// 		this.setState({
-		// 			dataTimeLine: dataChart1,
-		// 			labelsTimeLine: labelsChart1,
-		// 			legendTimeLine: legendChart1,
-		// 		});
-		// 	} else {
-		// 		this.setState({
-		// 			dataTimeLine: [0, 0, 0, 0, 0],
-		// 			labelsChart1: ["A1", "A2", "A3", "A4", "A5"],
-		// 			legendTimeLine: [
-		// 				["A1", "C1", "P1"],
-		// 				["A2", "C2", "P2"],
-		// 				["A3", "C3", "P3"],
-		// 				["A4", "C4", "P4"],
-		// 				["A5", "C5", "P5"],
-		// 			],
-		// 		});
-		// 	}
-		// 	this.setState({ queryTimeline: true });
-		// }
 	};
 
 	render() {
@@ -697,7 +620,7 @@ class Simulation extends React.Component {
 							<CardBody>
 								<Form>
 									<div className="pl-lg-4">
-										<Row>
+										{/* <Row>
 											<Col lg="6">
 												<FormGroup>
 													<label
@@ -717,7 +640,7 @@ class Simulation extends React.Component {
 												</FormGroup>
 											</Col>
 											<Col lg="6"></Col>
-										</Row>
+										</Row> */}
 										<Row style={{ marginLeft: "2px" }}>
 											{this.state.messageConfirmation}
 										</Row>
@@ -874,7 +797,6 @@ class Simulation extends React.Component {
 																dataVuelos={this.state.archivoVuelos}
 																startDate={this.state.startDateSimu._d}
 																endDate={this.state.endDateSimu._d}
-																zip = {this.state.archivoZip}
 															/>
 														) : (
 															<MapBox />

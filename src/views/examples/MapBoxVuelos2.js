@@ -40,7 +40,7 @@ var moment = require("moment");
 require("moment/locale/es");
 
 
-const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
+const MapBox = ({dataVuelos, startDate, endDate}) => {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VybnV0ZWh6IiwiYSI6ImNsOXVuYjMzMzAwNG8zdWxhY2dlZzJhMzEifQ.rEKkvxvnjNKLc5Q8uSlZ1A';
 
@@ -64,6 +64,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     const [respuesta, setRespuesta] = useState(true);
     const [simulacion, setSimulacion] = useState(true);
     const [aeropuerto, setAeropuertos] = useState([]);
+    const [multi, setMulti] = useState(1);
 
     const shipmentService = new APIShipment();
 
@@ -73,18 +74,16 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
     let counter = 0;
     let day = 0;
     let vuelosDatos = [];
+    let bloque = 6;
    
     let iniPage = 0;
     let finPage = 10;
     let items = [];
-     let x;
+    let x;
 
     
     
-    const addFlight = (vuelo, counterFlight, start, duracion) => { 
-
-        // var vuelosPointer = vuelos.filter(function (el) { return el.id >= (pointerId) });
-        
+    const addFlight = (vuelo, counterFlight, start, duracion) => {                
 
         // vuelos.forEach((vuelo) =>{
             const route = {
@@ -240,9 +239,9 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         
     }
 
-    const incrementCounter = useCallback(() => {
-        setCounterFlight((v) => v + 1);
-    });
+    // const incrementCounter = useCallback(() => {
+    //     setCounterFlight((v) => v + 1);
+    // });
     
     const dispatchTable = async () => {
         const infoShipments = await shipmentService.listShipmentsAll();
@@ -259,32 +258,37 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
         if(semaforo){
             console.log("Entre a loadData");
 
-            var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
-    
+            //var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
+            var new_date = moment(startDate, "DD-MM-YYYY")
             var new_date2 = JSON.stringify(new_date._d);
 
-            // console.log(new_date2);
-            // console.log(currentTime.getHours());
+            var calculo =  bloque*multi
+            var horai = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
+
+            calculo =  bloque*(multi + 1)
+            var horaf = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
+
+            setMulti(multi + 1);
+
+            // horai = JSON.stringify(horai);
+            // horaf = JSON.stringify(horaf);
+
+            console.log(horai);
+            console.log(horaf);
             
             const formData = new FormData();
-            formData.append("file", zip);
             formData.append("date", new_date2);    
-            
-            // console.log(new_date2);
+            formData.append("horai", horai);
+		    formData.append("horaf", horaf);
 
             var requestOptions = {
                 method: "POST",
                 body: formData,
                 redirect: "follow",
             };
-            var requestOptions2 = {
-                method: "GET",
-                body: {"fecha": new_date2},
-                redirect: "follow",
-            };
     
             let uploadFile;
-            console.log("procesando zip");
+            console.log("procesando data");
                 
             const uploadFileAns = await fetch(
                 "http://localhost:8090/dp1/api/dispatch/upload/zip",
@@ -298,8 +302,7 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
                 setRespuesta(true);
                 
                 const simulacion = await fetch(
-                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2,
-                  
+                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2 + "?horaI=" + horai + "?horaF=" + horaf                    
                 );
                     
                 archivo_vuelos = await simulacion.json();
@@ -470,15 +473,14 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
         airport.forEach((data) =>{
             let arrayHtml = [];
-            let usedCapacity = parseFloat(data.warehouse.occupiedCapacity / data.warehouse.capacity)*100;
+            let usedCapacity = parseFloat(data.warehouse.occupiedCapacity / data.warehouse.capacity).toFixed(2)*100;
 
             arrayHtml.push(document.createElement("div"));
             arrayHtml[0].className = "marker";
-            arrayHtml[0].style.backgroundImage = usedCapacity <= 10 ? `url(${AirportImage1})` : usedCapacity <= 60 ? `url(${AirportImage2})` : `url(${AirportImage3})` ;
+            arrayHtml[0].style.backgroundImage = usedCapacity <= 20 ? `url(${AirportImage1})` : usedCapacity <= 60 ? `url(${AirportImage2})` : `url(${AirportImage3})` ;
             arrayHtml[0].style.width = `16px`;
             arrayHtml[0].style.height = `16px`;
             arrayHtml[0].style.backgroundSize = "100%";
-            //arrayHtml[0].style.filter = "invert(38%) sepia(23%) saturate(6553%) hue-rotate(3deg) brightness(60%) contrast(20%)";    
 
             new mapboxgl.Marker(arrayHtml[0])
             .setLngLat([data.longitude, data.latitude])
@@ -631,14 +633,14 @@ const MapBox = ({dataVuelos, startDate, endDate, zip}) => {
 
                 if(semaforo){                    
                     setSemaforo(false);
-                    if( (currentTime.getHours() === 2) ){             
+                    if( (currentTime.getHours() === 2 || currentTime.getHours() === 8 || currentTime.getHours() === 14 ) ){             
                         day = day + 1;
                         loadData();       
                         cargarData();          
                     }
                 }
 
-                if(currentTime.getHours() !== 2){
+                if(currentTime.getHours() !== 2 && currentTime.getHours() !== 8 && currentTime.getHours() !== 14){
                     setSemaforo(true);
                 }
 
