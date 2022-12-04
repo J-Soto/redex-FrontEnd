@@ -302,7 +302,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 setRespuesta(true);
                 
                 const simulacion = await fetch(
-                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2 + "?horaI=" + horai + "?horaF=" + horaf                    
+                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2 , "?horaI=" + horai , "?horaF=" + horaf                    
                 );
                     
                 archivo_vuelos = await simulacion.json();
