@@ -413,12 +413,14 @@ class Simulation extends React.Component {
 			uploadFile = await uploadFileAns.json();
 			console.log(uploadFile["estado"]);
 
+			var horai = "00:00";
+			var horaf = "06:00";
+
 			if (uploadFile["estado"].length < 3) {
 				console.log("entro");
 				const simulacion = await fetch(
-					"http://localhost:8090/dp1/api/airport/flight/plan/all",
-					requestOptions2
-				);
+                    `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${startDateSimuVar}&horaI=${horai}&horaF=${horaf}`        
+                );
 
 				archivo_vuelos = await simulacion.json();
 
