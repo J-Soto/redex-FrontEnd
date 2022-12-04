@@ -290,10 +290,18 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             let uploadFile;
             console.log("procesando data");
                 
-            const uploadFileAns = await fetch(
-                "http://localhost:8090/dp1/api/dispatch/upload/zip",
-                requestOptions
-            );
+            var startTime = performance.now()
+
+			const uploadFileAns = await fetch(
+				"http://localhost:8090/dp1/api/dispatch/upload/zip",
+				requestOptions
+			);
+
+			var endTime = performance.now()
+			
+			var diferencia = parseFloat((endTime - startTime)/1000).toFixed(2);
+			
+			console.log(`UploadFileAns tomó ${diferencia} segundos`);
     
             uploadFile = await uploadFileAns.json();
             
@@ -301,8 +309,9 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 console.log("entro");
                 setRespuesta(true);
                 
+                console.log("HOLA");
                 const simulacion = await fetch(
-                    "http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=" + new_date2 , "?horaI=" + horai , "?horaF=" + horaf                    
+                    `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
                 );
                     
                 archivo_vuelos = await simulacion.json();
