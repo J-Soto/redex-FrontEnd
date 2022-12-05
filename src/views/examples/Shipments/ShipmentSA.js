@@ -688,7 +688,7 @@ class ShipmentSA extends React.Component {
                 <Table className="align-items-center table-flush" responsive>
                   <thead className="thead-light">
                     <tr>
-                      <th scope="col">COD. RASTREO</th>
+                      {/* <th scope="col">COD. RASTREO</th> */}
                       <th scope="col">ESTADO</th>
                       <th scope="col">PAÍS, CIUDAD ORIGEN</th>
                       <th scope="col">PAÍS, CIUDAD DESTINO</th>
@@ -702,7 +702,7 @@ class ShipmentSA extends React.Component {
                       //pageItems en vez de infoShipments
                       return (
                         <tr key={shipment["id"]}>
-                          <th>{shipment["trackingCode"]}</th>
+                          {/* <th>{shipment["trackingCode"]}</th> */}
                           <td>{shipment["status"]}</td>
                           <td>
                             {

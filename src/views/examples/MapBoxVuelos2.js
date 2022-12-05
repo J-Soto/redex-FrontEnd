@@ -57,7 +57,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [vuelosD, setVuelosD] = useState([]);
     const [envios, setEnvios] = useState([]);
     const [paginas, setPaginas] = useState(0);
-    const [pagina, setPagina] = useState(0);
+    const [pagina, setPagina] = useState(1);
     const [paginasItems, setPaginasItems] = useState([]);
     const [semaforo, setSemaforo] = useState(true);
     const [cargado, setCargado] = useState(true);
@@ -66,9 +66,11 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [aeropuerto, setAeropuertos] = useState([]);
     const [multi, setMulti] = useState(1);
     const [sumaDia, setsumaDia] = useState(0);
+    const [warehouseU, setWarehouseU] = useState([]);
 
     const shipmentService = new APIShipment();
 
+    var warehouse = [];
     let archivo_vuelos;
     let cantVuelos = 50;
     let steps = 100;
@@ -346,21 +348,24 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         arrival = new Date();
                         [arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);
     
-                        utc0P = element.flight.takeOffAirport.city.country.utc;
-                        takeOff_hh_utc0 =
-                            takeOff_hh - utc0P > 24
-                                ? takeOff_hh - utc0P - 24
-                                : takeOff_hh - utc0P > 0
-                                ? takeOff_hh - utc0P
-                                : 24 - takeOff_hh - utc0P;
-                        utc0D = element.flight.arrivalAirport.city.country.utc;
-                        arrival_hh_utc0 =
-                            arrival_hh - utc0D > 24
-                                ? arrival_hh - utc0D - 24
-                                : arrival_hh - utc0D > 0
-                                ? arrival_hh - utc0D
-                                : 24 - arrival_hh - utc0D;
+                        // utc0P = element.flight.takeOffAirport.city.country.utc;
+                        // takeOff_hh_utc0 =
+                        //     takeOff_hh - utc0P > 24
+                        //         ? takeOff_hh - utc0P - 24
+                        //         : takeOff_hh - utc0P > 0
+                        //         ? takeOff_hh - utc0P
+                        //         : 24 - takeOff_hh - utc0P;
+                        // utc0D = element.flight.arrivalAirport.city.country.utc;
+                        // arrival_hh_utc0 =
+                        //     arrival_hh - utc0D > 24
+                        //         ? arrival_hh - utc0D - 24
+                        //         : arrival_hh - utc0D > 0
+                        //         ? arrival_hh - utc0D
+                        //         : 24 - arrival_hh - utc0D;
     
+                        takeOff_hh_utc0 = parseInt(element.takeOffTimeUtc.split(/[/:\-T]/)[0]);
+						arrival_hh_utc0 = parseInt(element.arrivalTimeUtc.split(/[/:\-T]/)[0]);
+
                         caltakeOffTime = parseInt(
                             takeOff_hh_utc0 * 100 + parseInt(takeOff_mi)
                         );
@@ -477,6 +482,14 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
         var airport = archivo_vuelos["resultado"];
 		// setAeropuertos(archivo_vuelos["resultado"]);
 
+        console.log(warehouseU);
+        if (warehouseU!==null) {
+            for (var i = warehouseU.length - 1; i >= 0; i--) {
+                warehouseU[i].remove();
+            }
+            setWarehouseU([]);
+        }
+
         airport.forEach((data) =>{
             let arrayHtml = [];
             let usedCapacity = parseFloat(data.warehouse.occupiedCapacity / data.warehouse.capacity).toFixed(2)*100;
@@ -488,7 +501,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             arrayHtml[0].style.height = `16px`;
             arrayHtml[0].style.backgroundSize = "100%";
 
-            new mapboxgl.Marker(arrayHtml[0])
+            var marker = new mapboxgl.Marker(arrayHtml[0])
             .setLngLat([data.longitude, data.latitude])
             .setPopup(
                 new mapboxgl.Popup({ offset: 25 })
@@ -496,8 +509,15 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     `<h3>${data.description}</h3><p>${data.city.name + ', ' + data.city.country.name}</p><p>${'Used Capacity:' + usedCapacity +'%'}</p>`
                 )
             )
-            .addTo(mapBox.current);            
+            .addTo(mapBox.current);     
+            
+            warehouse.push(marker);
+            
         })
+
+        setWarehouseU(warehouse)
+
+        console.log(warehouseU);
 
 	};
 
@@ -605,11 +625,12 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     useEffect(() =>{
         if(currentTime.getDate() < endDate.getDate()+1){
 
-            if(counterFlight >= 0 && vuelos.length > 0){
-                let h, m;            
+            let h, m;            
 
-                h = currentTime.getHours();
-                m = currentTime.getMinutes();
+            h = currentTime.getHours();
+            m = currentTime.getMinutes();
+
+            if(counterFlight >= 0 && vuelos.length > 0){                
 
                 if(m >= 50)
                     analyzeWarehouse(h, m, currentTime);
@@ -618,7 +639,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     console.log("Vuelo actual: " + counterFlight);
                     // console.log("Vuelo antiguo: " + counterFlightA);
                     if (counterFlightA !== counterFlight){
-                        addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*8.9);
+                        addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*17.8);
                         setCounterFlightA(counterFlightA+1);
                     }
                                         
@@ -635,28 +656,27 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         setCounterFlightA(-1);
                         console.log("HOLA CAMBIO VUELOS");
                     }
-                }
-
-                if(semaforo){                    
-                    setSemaforo(false);
-                    if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
-                        day = day + 1;
-                        loadData(h);       
-                        cargarData();          
-                    }
-                }
-
-                if(h !== 2 && h !== 8 && h !== 14 && h !== 20){
-                    setSemaforo(true);
-                }
-
-                if(h === 23 && vuelosD.length === 0){
-                    setRespuesta(false);
-                }
+                }                
 
                 // console.log(respuesta);
                 // console.log(vuelosD.length);
                
+            }
+
+            if(semaforo){                    
+                setSemaforo(false);
+                if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
+                    loadData(h);       
+                    cargarData();          
+                }
+            }
+
+            if(h !== 2 && h !== 8 && h !== 14 && h !== 20){
+                setSemaforo(true);
+            }
+
+            if(h === 23 && vuelosD.length === 0){
+                setRespuesta(false);
             }
             
             
@@ -723,12 +743,10 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     <Table className="align-items-center table-flush" responsive>
                         <thead className="thead-light">
                             <tr>
-                            <th scope="col">COD. RASTREO</th>
-                            <th scope="col">ESTADO</th>
-                            <th scope="col">PAÍS, CIUDAD ORIGEN</th>
-                            <th scope="col">PAÍS, CIUDAD DESTINO</th>
-                            <th scope="col">FECHA REGISTRO</th>
-                            <th scope="col">ACCIONES</th>
+                                <th scope="col">ESTADO</th>
+                                <th scope="col">PAÍS, CIUDAD ORIGEN</th>
+                                <th scope="col">PAÍS, CIUDAD DESTINO</th>
+                                <th scope="col">FECHA REGISTRO</th>
                             </tr>
                         </thead>
 
@@ -736,7 +754,6 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                             {paginasItems.map((shipment) => {
                             return (
                                 <tr key={shipment["id"]}>
-                                <th>{shipment["trackingCode"]}</th>
                                 <td>{shipment["status"]}</td>
                                 <td>
                                     {
@@ -775,22 +792,24 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     <PaginationItem
                         className={pagina - 1 === 0 ? "disabled" : ""}
                     >
-                    <PaginationLink
-                        onClick={() => handlePrevPage()}
-                        tabIndex="-1"
-                    >
-                        <i className="fas fa-angle-left" />
-                        <span className="sr-only">Previous</span>
-                    </PaginationLink>
+                        <PaginationLink
+                            onClick={() => handlePrevPage()}
+                            tabIndex="-1"
+                        >
+                            <i className="fas fa-angle-left" />
+                            <span className="sr-only">Previous</span>
+                        </PaginationLink>
                     </PaginationItem>
-                        {items}
+
+                    {items}
+
                     <PaginationItem
                         className={pagina === paginas ? "disabled" : ""   }
                     >
-                    <PaginationLink onClick={() => handleNextPage()}>
-                        <i className="fas fa-angle-right" />
-                        <span className="sr-only">Next</span>
-                    </PaginationLink>
+                        <PaginationLink onClick={() => handleNextPage()}>
+                            <i className="fas fa-angle-right" />
+                            <span className="sr-only">Next</span>
+                        </PaginationLink>
                     </PaginationItem>
                 </Pagination>
                 </nav>

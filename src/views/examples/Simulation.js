@@ -116,6 +116,7 @@ class Simulation extends React.Component {
 			archivoAeropuertos: [],
 			archivoVuelos: [],
 			archivoZip: new FormData(),
+			simular: false,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -429,7 +430,7 @@ class Simulation extends React.Component {
 				let counter = 0;
 
 				if (archivo_vuelos["resultado"].length > 0) {
-
+					console.log("entro2");
 					let takeOff,
 						arrival,
 						takeOff_hh,
@@ -451,22 +452,24 @@ class Simulation extends React.Component {
 						takeOff = new Date();
 						[takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
 						arrival = new Date();
-						[arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);
+						[arrival_hh, arrival_mi] = element.flight.arrivalTime.split(/[/:\-T]/);						
 						
-						utc0P = element.flight.takeOffAirport.city.country.utc;
-						takeOff_hh_utc0 =
-							takeOff_hh - utc0P > 24
-								? takeOff_hh - utc0P - 24
-								: takeOff_hh - utc0P > 0
-								? takeOff_hh - utc0P
-								: 24 - takeOff_hh - utc0P;
-						utc0D = element.flight.arrivalAirport.city.country.utc;
-						arrival_hh_utc0 =
-							arrival_hh - utc0D > 24
-								? arrival_hh - utc0D - 24
-								: arrival_hh - utc0D > 0
-								? arrival_hh - utc0D
-								: 24 - arrival_hh - utc0D;
+						//utc0P = element.flight.takeOffAirport.city.country.utc;
+						takeOff_hh_utc0 = parseInt(element.takeOffTimeUtc.split(/[/:\-T]/)[0]);
+						arrival_hh_utc0 = parseInt(element.arrivalTimeUtc.split(/[/:\-T]/)[0]);
+
+							// takeOff_hh - utc0P > 24
+							// 	? takeOff_hh - utc0P - 24
+							// 	: takeOff_hh - utc0P > 0
+							// 	? takeOff_hh - utc0P
+							// 	: 24 - takeOff_hh - utc0P;
+						// utc0D = element.flight.arrivalAirport.city.country.utc;
+						// arrival_hh_utc0 =
+						// 	arrival_hh - utc0D > 24
+						// 		? arrival_hh - utc0D - 24
+						// 		: arrival_hh - utc0D > 0
+						// 		? arrival_hh - utc0D
+						// 		: 24 - arrival_hh - utc0D;
 
 						caltakeOffTime = parseInt(
 							takeOff_hh_utc0 * 100 + parseInt(takeOff_mi)
@@ -514,7 +517,11 @@ class Simulation extends React.Component {
 					});
 
 					this.orderFlights(vuelosDatos);
+				}else{
+					this.setState({ archivoVuelos: [], archivoAeropuertos: [] })
 				}
+
+				this.setState({ simular: true })
 
 				let alertMessage = (
 					<Alert>La simulación inicio de manera correcta</Alert>
@@ -795,14 +802,14 @@ class Simulation extends React.Component {
 												marginBottom: "20px",
 												marginRight: "0px"
 											}}>
-											<div style={{ height: this.state.archivoVuelos.length ? "1600px" : "760px", width: "100%" }}>
+											<div style={{ height: this.state.archivoVuelos.length ? "1650px" : "760px", width: "100%" }}>
 												{this.state.archivoAeropuertos["resultado"] ? (
 													<MapBoxAirport
 														data={this.state.archivoAeropuertos["resultado"]}
 													/>
 												) : (
 													<>
-														{this.state.archivoVuelos.length ? (
+														{this.state.archivoVuelos.length > 0 ? (
 															<MapBoxVuelos2
 																dataVuelos={this.state.archivoVuelos}
 																startDate={this.state.startDateSimu._d}
