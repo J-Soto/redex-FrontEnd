@@ -60,7 +60,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [pagina, setPagina] = useState(1);
     const [paginasItems, setPaginasItems] = useState([]);
     const [semaforo, setSemaforo] = useState(true);
-    const [cargado, setCargado] = useState(true);
+    const [cargado, setCargado] = useState(false);
     const [respuesta, setRespuesta] = useState(true);
     const [simulacion, setSimulacion] = useState(true);
     const [aeropuerto, setAeropuertos] = useState([]);
@@ -259,7 +259,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const loadData = async (h) => {
         if(semaforo){
             console.log("Entre a loadData");
-
+            setCargado(false);
             //var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
             var new_date = moment(startDate, "DD-MM-YYYY").add(sumaDia, 'day');
             var new_date2 = JSON.stringify(new_date._d);
@@ -308,6 +308,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             if (uploadFile["estado"].length < 3) {
                 console.log("entro");
                 setRespuesta(true);
+                setCargado(true);
                 
                 const simulacion = await fetch(
                     `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
@@ -664,14 +665,16 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             }
 
             if(semaforo){                    
-                setSemaforo(false);
+                setSemaforo(false);                
+               
                 if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
                     loadData(h);       
                     cargarData();          
                 }
+                
             }
 
-            if(h !== 2 && h !== 8 && h !== 14 && h !== 20){
+            if(h !== 2 && h !== 8 && h !== 14 && h !== 20 && cargado){
                 setSemaforo(true);
             }
 
