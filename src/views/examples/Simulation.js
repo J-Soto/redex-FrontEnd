@@ -359,8 +359,8 @@ class Simulation extends React.Component {
 		});
 
 		this.setState({ archivoVuelos: archivo_vuelos, archivoAeropuertos: [] });
-		console.log(this.state.archivoVuelos);
-		console.log(this.state.archivoVuelos.length);
+		//console.log(this.state.archivoVuelos);
+		//console.log(this.state.archivoVuelos.length);
 	};
 
 	exchangePos = (orderedFlights, j) => {
@@ -376,7 +376,7 @@ class Simulation extends React.Component {
 
 		formData.append("date", startDateSimuVar);
 		formData.append("horai", "00:00");
-		formData.append("horaf", "06:00");
+		formData.append("horaf", "04:00");
 
 		var requestOptions = {
 			method: "POST",
@@ -412,13 +412,13 @@ class Simulation extends React.Component {
 			console.log(`UploadFileAns tomó ${diferencia} segundos`);
 
 			uploadFile = await uploadFileAns.json();
-			console.log(uploadFile["estado"]);
+			//console.log(uploadFile["estado"]);
 
 			var horai = "00:00";
-			var horaf = "06:00";
+			var horaf = "04:00";
 
 			if (uploadFile["estado"].length < 3) {
-				console.log("entro");
+				//console.log("entro");
 				const simulacion = await fetch(
                     `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${startDateSimuVar}&horaI=${horai}&horaF=${horaf}`        
                 );
@@ -430,7 +430,6 @@ class Simulation extends React.Component {
 				let counter = 0;
 
 				if (archivo_vuelos["resultado"].length > 0) {
-					console.log("entro2");
 					let takeOff,
 						arrival,
 						takeOff_hh,
@@ -587,8 +586,8 @@ class Simulation extends React.Component {
 		archivo_vuelos = await uploadFileAns.json();
 		this.setState({ archivoAeropuertos: archivo_vuelos });
 
-		console.log("HOLA");
-		console.log(archivo_vuelos.resultado);
+		//console.log("HOLA");
+		//console.log(archivo_vuelos.resultado);
 
 		if (archivo_vuelos["estado"].length < 3) {
 			console.log("entro");

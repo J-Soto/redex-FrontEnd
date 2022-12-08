@@ -60,24 +60,24 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [pagina, setPagina] = useState(1);
     const [paginasItems, setPaginasItems] = useState([]);
     const [semaforo, setSemaforo] = useState(true);
-    const [cargado, setCargado] = useState(false);
+    const [cargado, setCargado] = useState(true);
     const [respuesta, setRespuesta] = useState(true);
     const [simulacion, setSimulacion] = useState(true);
     const [aeropuerto, setAeropuertos] = useState([]);
     const [multi, setMulti] = useState(1);
     const [sumaDia, setsumaDia] = useState(0);
     const [warehouseU, setWarehouseU] = useState([]);
+    const [cantVuelos, setCantVuelos] = useState(dataVuelos.length);
 
     const shipmentService = new APIShipment();
 
     var warehouse = [];
-    let archivo_vuelos;
-    let cantVuelos = 50;
+    let archivo_vuelos; 
     let steps = 100;
     let counter = 0;
     let day = 0;
     let vuelosDatos = [];
-    let bloque = 6;
+    let bloque = 4;
    
     let iniPage = 0;
     let finPage = 10;
@@ -258,7 +258,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
     const loadData = async (h) => {
         if(semaforo){
-            console.log("Entre a loadData");
+            //console.log("Entre a loadData");
             setCargado(false);
             //var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
             var new_date = moment(startDate, "DD-MM-YYYY").add(sumaDia, 'day');
@@ -270,7 +270,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             calculo =  bloque*(multi + 1)
             var horaf = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
 
-            if(h === 14){
+            if(h === 17){
                 setMulti(0);
             }else{
                 setMulti(multi + 1);
@@ -306,7 +306,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             uploadFile = await uploadFileAns.json();
             
             if (uploadFile["estado"].length < 3) {
-                console.log("entro");
+                //console.log("entro");
                 setRespuesta(true);
                 setCargado(true);
                 
@@ -316,12 +316,14 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     
                 archivo_vuelos = await simulacion.json();
                 
-                console.log(archivo_vuelos);
+                //console.log(archivo_vuelos);
 
                 if (archivo_vuelos["resultado"].length > 0) {
                     
                     vuelosDatos = [];
-                   
+                    var cant = archivo_vuelos["resultado"].length;
+                    //console.log(cant);
+
                     let takeOff,
                         arrival,
                         takeOff_hh,
@@ -340,9 +342,9 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         capacidadUsada;
                     
                     archivo_vuelos = archivo_vuelos["resultado"];    
-                    console.log(archivo_vuelos);
+                    //console.log(archivo_vuelos);
     
-                    counter = 0;
+                    counter = cantVuelos;
                     archivo_vuelos.forEach((element) => {
                         takeOff = new Date();
                         [takeOff_hh, takeOff_mi] = element.flight.takeOffTime.split(/[/:\-T]/);
@@ -371,9 +373,9 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                             takeOff_hh_utc0 * 100 + parseInt(takeOff_mi)
                         );
                         duracionH =
-                            takeOff_hh > arrival_hh
-                                ? (24 - takeOff_hh + arrival_hh) * 60
-                                : (arrival_hh - takeOff_hh) * 60;
+                        takeOff_hh_utc0 > arrival_hh_utc0
+                                ? (24 - takeOff_hh_utc0 + arrival_hh_utc0) * 60
+                                : (arrival_hh_utc0 - takeOff_hh_utc0) * 60;
 
                         duracionM =
 							parseInt(takeOff_mi) > parseInt(arrival_mi)
@@ -414,6 +416,8 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     orderFlights(vuelosDatos);
     
                     setVuelosD(vuelosDatos);
+
+                    setCantVuelos(cantVuelos + cant);
                 }
     
             }else{
@@ -483,7 +487,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
         var airport = archivo_vuelos["resultado"];
 		// setAeropuertos(archivo_vuelos["resultado"]);
 
-        console.log(warehouseU);
+        //console.log(warehouseU);
         if (warehouseU!==null) {
             for (var i = warehouseU.length - 1; i >= 0; i--) {
                 warehouseU[i].remove();
@@ -518,7 +522,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
         setWarehouseU(warehouse)
 
-        console.log(warehouseU);
+        //console.log(warehouseU);
 
 	};
 
@@ -636,28 +640,35 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 if(m >= 50)
                     analyzeWarehouse(h, m, currentTime);
 
-                if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
-                    console.log("Vuelo actual: " + counterFlight);
-                    // console.log("Vuelo antiguo: " + counterFlightA);
-                    if (counterFlightA !== counterFlight){
-                        addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*17.8);
-                        setCounterFlightA(counterFlightA+1);
-                    }
-                                        
-    
-                    // if (Math.random() > 0.01) {
-                    //     incrementCounter();
-                    // }
-                    
-                    setCounterFlight(counterFlight+1);
+                if(typeof vuelos[counterFlight] !== 'undefined'){
 
-                    if(counterFlight === (vuelos.length-1)){
-                        setVuelos(vuelosD);
-                        setCounterFlight(0);
-                        setCounterFlightA(-1);
-                        console.log("HOLA CAMBIO VUELOS");
-                    }
-                }                
+                    //console.log(vuelos[counterFlight]);
+
+                    if( (vuelos[counterFlight].hP0 === (h)) && (vuelos[counterFlight].mP<=(m) || vuelos[counterFlight].mP >= 50) ){   
+                        //console.log("Vuelo actual: " + counterFlight);
+                        // console.log("Vuelo antiguo: " + counterFlightA);
+                        if (counterFlightA !== counterFlight){
+                            addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*118.6);
+                            setCounterFlightA(counterFlightA+1);
+                        }
+                                            
+        
+                        // if (Math.random() > 0.01) {
+                        //     incrementCounter();
+                        // }
+                        
+                        setCounterFlight(counterFlight+1);
+
+                        
+                    }       
+                }
+
+                if(counterFlight === (vuelos.length) && vuelosD.length > 0){
+                    setVuelos(vuelos.concat(vuelosD));
+                    console.log("HOLA CAMBIO VUELOS");
+                    setVuelosD([]);
+                }
+                
 
                 // console.log(respuesta);
                 // console.log(vuelosD.length);
@@ -667,16 +678,26 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             if(semaforo){                    
                 setSemaforo(false);                
                
-                if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
-                    loadData(h);       
-                    cargarData();          
-                }
+                // if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
+                //     loadData(h);       
+                //     cargarData();          
+                // }
                 
+
+                if( (h === 1 || h === 5 || h === 9 || h === 13 || h === 17 || h === 21 ) ){             
+                    cargarData();  
+                    loadData(h);                                  
+                }
+
             }
 
-            if(h !== 2 && h !== 8 && h !== 14 && h !== 20 && cargado){
+            if( (h !== 1 && h !== 5 && h !== 9 && h !== 13 && h !== 17 && h !== 21) && cargado){
                 setSemaforo(true);
             }
+
+            // if(h !== 2 && h !== 8 && h !== 14 && h !== 20 && cargado){
+            //     setSemaforo(true);
+            // }
 
             if(h === 23 && vuelosD.length === 0){
                 setRespuesta(false);
