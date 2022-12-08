@@ -648,7 +648,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         //console.log("Vuelo actual: " + counterFlight);
                         // console.log("Vuelo antiguo: " + counterFlightA);
                         if (counterFlightA !== counterFlight){
-                            addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*118.6);
+                            addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*59.3);
                             setCounterFlightA(counterFlightA+1);
                         }
                                             
