@@ -818,50 +818,33 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         >
                             <thead className="thead-light">
                                 <tr>
-                                    <th scope="col">CIUDA/PAÍS ORIGEN</th>
-                                    <th scope="col">FECHA/ HORA DE DESPEGUE</th>
-                                    <th scope="col">CIUDA/PAÍS DESTINO</th>
-                                    <th scope="col">FECHA/ HORA DE ATERRIZAJE</th>
+                                    <th scope="col">PAÍS ORIGEN</th>
+                                    <th scope="col">PAÍS DESTINO</th>                                   
+                                    <th scope="col">FECHA/HORA</th>
+                                    <th scope="col"># Paquetes</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {modal
                                 ?
                                     <>
-                                        <tr key={vueloColapso["id"]}>
+                                        <tr key={vueloColapso["idHistorico"]}>
                                         <td scope="col">
                                             {
-                                            vueloColapso["flight"]["takeOffAirport"][
-                                                "city"
-                                            ]["name"]
-                                            }
-                                            ,{" "}
+                                                vueloColapso["codigoPaisSalida"]
+                                            }                                            
+                                        </td>                                        
+                                        <td scope="col">
                                             {
-                                            vueloColapso["flight"]["takeOffAirport"][
-                                                "city"
-                                            ]["country"]["name"]
+                                                vueloColapso["codigoPaisLlegada"]
                                             }
                                         </td>
                                         <td scope="col">
-                                            {vueloColapso["takeOffDate"]}{" "}
-                                            {vueloColapso["flight"]["takeOffTime"]}
+                                            {vueloColapso["fecha"]}{"  "}
+                                            {vueloColapso["hora"]}
                                         </td>
                                         <td scope="col">
-                                            {
-                                            vueloColapso["flight"]["arrivalAirport"][
-                                                "city"
-                                            ]["name"]
-                                            }
-                                            ,{" "}
-                                            {
-                                            vueloColapso["flight"]["arrivalAirport"][
-                                                "city"
-                                            ]["country"]["name"]
-                                            }
-                                        </td>
-                                        <td scope="col">
-                                            {vueloColapso["arrivalDate"]}{" "}
-                                            {vueloColapso["flight"]["arrivalTime"]}
+                                            {vueloColapso["nroPaquetes"]}
                                         </td>
                                         </tr> 
                                     </>                           
