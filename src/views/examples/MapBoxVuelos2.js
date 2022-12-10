@@ -150,7 +150,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     source: "route"+counterFlight,
                     type: "line",
                     paint: {
-                        "line-width": 1.5,
+                        "line-width": 1,
                         "line-color": vuelo.capacidadEmpleada <= 20 ? "#008000" : vuelo.capacidadEmpleada <= 60 ? "#FFFF00" : "#B22222" ,
                     },
                 });
@@ -656,7 +656,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                         //console.log("Vuelo actual: " + counterFlight);
                         // console.log("Vuelo antiguo: " + counterFlightA);
                         if (counterFlightA !== counterFlight){
-                            addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*59.3);
+                            addFlight(vuelos[counterFlight], counterFlight, 0, vuelos[counterFlight].duracion*17.8);
                             setCounterFlightA(counterFlightA+1);
                         }
                                             
@@ -705,13 +705,14 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 // }
             }
 
-            if( (h !== 0 && h !== 3 && h !== 6 && h !== 9 && h !== 12 && h !== 15 && h !== 18 && h !== 21) && cargado){
-                setSemaforo(true);
-            }
-
-            // if(h !== 2 && h !== 8 && h !== 14 && h !== 20 && cargado){
+            // if( (h !== 0 && h !== 3 && h !== 6 && h !== 9 && h !== 12 && h !== 15 && h !== 18 && h !== 21) && cargado){
             //     setSemaforo(true);
             // }
+
+            if( (h !== 1 && h !== 5 && h !== 9 && h !== 13 && h !== 17 && h !== 21) && cargado){
+                setSemaforo(true);
+            }
+            
 
             if(h === 23 && vuelosD.length === 0){
                 setRespuesta(false);
@@ -768,7 +769,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
             <Legend tipo={1}/>
 
-            <Row style={{marginTop: "30px", marginBottom: "10px", font: "caption", display: "flex", justifyContent: "center"}}>
+            {/* <Row style={{marginTop: "30px", marginBottom: "10px", font: "caption", display: "flex", justifyContent: "center"}}>
                 <h3 style={{fontSize: "20px"}}>Resultado de la simulación</h3>
             </Row>
 
@@ -851,7 +852,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     </PaginationItem>
                 </Pagination>
                 </nav>
-            </CardFooter>
+            </CardFooter> */}
 
         </div>
     )
