@@ -432,22 +432,19 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     
             }else{
                 if (uploadFile["estado"].length > 6){
-                    console.log("COLAPSO LOGISTICO  :c");
+                    console.log("COLAPSO LOGISTICO");
 
                     const simulacion = await fetch(
-                        `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
+                        "http://localhost:8090/dp1/api/dispatch/envioMuerte"        
                     );
                         
                     archivo_vuelos = await simulacion.json();
-                    archivo_vuelos = archivo_vuelos["resultado"];
-                    cant = archivo_vuelos["resultado"].length;
-
-                    setVueloColapso(archivo_vuelos[cant-1]);
-                    
+                    archivo_vuelos = archivo_vuelos["resultado"];                    
+                    setVueloColapso(archivo_vuelos[0]);                    
                     setModal(true);
 
                 }else{
-                    console.log("ERROR :'v");
+                    console.log("ERROR");
                 } 
             }
 

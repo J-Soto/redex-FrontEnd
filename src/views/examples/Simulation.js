@@ -548,7 +548,7 @@ class Simulation extends React.Component {
 				else {
 					let alertMessage = (
 						<Alert style={{ backgroundColor: "#C41E3A", borderColor: "#C41E3A" }}>
-							El archivo no se subió de manera correcta
+							La simulación no inició de manera correcta
 						</Alert>
 					);
 
