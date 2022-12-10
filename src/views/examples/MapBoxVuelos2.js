@@ -25,6 +25,7 @@ import {
     Input,
     InputGroup,
     InputGroupAddon,
+    Modal,
     Row,
     Table,	
     Pagination,
@@ -68,6 +69,9 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     const [sumaDia, setsumaDia] = useState(0);
     const [warehouseU, setWarehouseU] = useState([]);
     const [cantVuelos, setCantVuelos] = useState(dataVuelos.length);
+
+    const [modal, setModal] = useState(false);
+    const [vueloColapso, setVueloColapso] = useState([]);
 
     const shipmentService = new APIShipment();
 
@@ -263,7 +267,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             //var new_date = moment(startDate, "DD-MM-YYYY").add(day, 'days');
             var new_date = moment(startDate, "DD-MM-YYYY").add(sumaDia, 'day');
             var new_date2 = JSON.stringify(new_date._d);
-
+            var cant;
             var calculo =  bloque*multi;
             var horai = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
 
@@ -316,18 +320,18 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 setRespuesta(true);
                 setCargado(true);
                 
+                
                 const simulacion = await fetch(
                     `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
                 );
                     
                 archivo_vuelos = await simulacion.json();
-                
                 //console.log(archivo_vuelos);
 
                 if (archivo_vuelos["resultado"].length > 0) {
                     
                     vuelosDatos = [];
-                    var cant = archivo_vuelos["resultado"].length;
+                    cant = archivo_vuelos["resultado"].length;
                     //console.log(cant);
 
                     let takeOff,
@@ -349,7 +353,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     
                     archivo_vuelos = archivo_vuelos["resultado"];    
                     //console.log(archivo_vuelos);
-    
+
                     counter = cantVuelos;
                     archivo_vuelos.forEach((element) => {
                         takeOff = new Date();
@@ -429,6 +433,19 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             }else{
                 if (uploadFile["estado"].length > 6){
                     console.log("COLAPSO LOGISTICO  :c");
+
+                    const simulacion = await fetch(
+                        `http://localhost:8090/dp1/api/airport/flight/plan/allDay?fecha=${new_date2}&horaI=${horai}&horaF=${horaf}`        
+                    );
+                        
+                    archivo_vuelos = await simulacion.json();
+                    archivo_vuelos = archivo_vuelos["resultado"];
+                    cant = archivo_vuelos["resultado"].length;
+
+                    setVueloColapso(archivo_vuelos[cant-1]);
+                    
+                    setModal(true);
+
                 }else{
                     console.log("ERROR :'v");
                 } 
@@ -765,6 +782,105 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 </InputGroup> */}
             </>
             
+
+
+            {modal 
+            ? 
+                <Modal
+                    size="lg"
+                    className="modal-dialog-centered"
+                    isOpen={modal}
+                >
+                    <div className="modal-header">
+                        <h3 className="modal-title" id="modal-title-default">
+                        Información del colapso
+                        </h3>
+                        <button
+                        aria-label="Close"
+                        className="close"
+                        data-dismiss="modal"
+                        type="button"
+                        onClick={() => setModal(false)}
+                        >
+                        <span aria-hidden={true}>×</span>
+                        </button>
+                    </div>
+
+                    <div className="modal-body">
+                        <Row>
+                            <div className="modal-header">
+                                <h3 className="modal-title" id="modal-title-default">
+                                    Ruta del envío
+                                </h3>
+                            </div>
+                        </Row>
+
+                        <Table
+                            className="align-items-center table-flush"
+                            responsive
+                        >
+                            <thead className="thead-light">
+                                <tr>
+                                    <th scope="col">CIUDA/PAÍS ORIGEN</th>
+                                    <th scope="col">FECHA/ HORA DE DESPEGUE</th>
+                                    <th scope="col">CIUDA/PAÍS DESTINO</th>
+                                    <th scope="col">FECHA/ HORA DE ATERRIZAJE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {modal
+                                ?
+                                    <>
+                                        <tr key={vueloColapso["id"]}>
+                                        <td scope="col">
+                                            {
+                                            vueloColapso["flight"]["takeOffAirport"][
+                                                "city"
+                                            ]["name"]
+                                            }
+                                            ,{" "}
+                                            {
+                                            vueloColapso["flight"]["takeOffAirport"][
+                                                "city"
+                                            ]["country"]["name"]
+                                            }
+                                        </td>
+                                        <td scope="col">
+                                            {vueloColapso["takeOffDate"]}{" "}
+                                            {vueloColapso["flight"]["takeOffTime"]}
+                                        </td>
+                                        <td scope="col">
+                                            {
+                                            vueloColapso["flight"]["arrivalAirport"][
+                                                "city"
+                                            ]["name"]
+                                            }
+                                            ,{" "}
+                                            {
+                                            vueloColapso["flight"]["arrivalAirport"][
+                                                "city"
+                                            ]["country"]["name"]
+                                            }
+                                        </td>
+                                        <td scope="col">
+                                            {vueloColapso["arrivalDate"]}{" "}
+                                            {vueloColapso["flight"]["arrivalTime"]}
+                                        </td>
+                                        </tr> 
+                                    </>                           
+                                : ""}
+                            </tbody>
+                        </Table>
+
+                    </div>
+
+
+
+                </Modal> 
+            : 
+                <></>
+            }
+
             <div ref={mapContainer} style={{ height: "650px", overflow: "hidden", marginBottom: "10px" }} />
 
             <Legend tipo={1}/>
