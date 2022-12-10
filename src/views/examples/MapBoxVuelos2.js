@@ -72,6 +72,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
     const [modal, setModal] = useState(false);
     const [vueloColapso, setVueloColapso] = useState([]);
+    const [colapso, setColapso] = useState(false);
 
     const shipmentService = new APIShipment();
 
@@ -439,10 +440,12 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                     );
                         
                     archivo_vuelos = await simulacion.json();
-                    archivo_vuelos = archivo_vuelos["resultado"];                    
-                    setVueloColapso(archivo_vuelos[0]);                    
+                    archivo_vuelos = archivo_vuelos["resultado"];   
+                    setSimulacion(false);
+                    setColapso(true);
+                    setVueloColapso(archivo_vuelos);                    
                     setModal(true);
-
+                    
                 }else{
                     console.log("ERROR");
                 } 
@@ -687,7 +690,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
                 if(counterFlight === (vuelos.length) && vuelosD.length > 0){
                     setVuelos(vuelos.concat(vuelosD));
-                    console.log("HOLA CAMBIO VUELOS");
+                    //console.log("HOLA CAMBIO VUELOS");
                     setVuelosD([]);
                 }
                 
@@ -707,7 +710,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                 // }
                 
                 // BLOQUE 4H
-                if( (h === 1 || h === 5 || h === 9 || h === 13 || h === 17 || h === 21 ) ){             
+                if( (h === 1 || h === 5 || h === 9 || h === 13 || h === 17 || h === 21 ) && !colapso ){             
                     cargarData();  
                     loadData(h);                                  
                 }
@@ -748,10 +751,28 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
     return(
         <div>
 
-            {!simulacion ? <Alert style={{display: "flex", justifyContent: "center", fontSize:"20px"}}>Simulacion terminada correctamente</Alert> : ""}
+            {!simulacion 
+                ?   
+                    <>
+                        {colapso
+                            ?
+                                <Alert style={{display: "flex", justifyContent: "center", fontSize:"20px", backgroundColor: "#C41E3A", borderColor: "#C41E3A"}}>
+                                    Simulacion terminada por colapso logístico
+                                </Alert> 
+                            :
+                                <Alert style={{display: "flex", justifyContent: "center", fontSize:"20px"}}>
+                                    Simulacion terminada correctamente
+                                </Alert> 
+                        }
+                    </>
+                    
+                : 
+                    <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
+            }
+
+            
 
             <>
-                <ClockTime setCurrentTime={setCurrentTime} startDate={startDate} endDate={endDate} bandera={respuesta}/>
 
                 {/* <InputGroup className="mb-4 justify-content-center">
                                 <Input
@@ -821,7 +842,7 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
                                     <th scope="col">PAÍS ORIGEN</th>
                                     <th scope="col">PAÍS DESTINO</th>                                   
                                     <th scope="col">FECHA/HORA</th>
-                                    <th scope="col"># Paquetes</th>
+                                    <th scope="col"># PAQUETES</th>
                                 </tr>
                             </thead>
                             <tbody>
