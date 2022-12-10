@@ -264,11 +264,11 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             var new_date = moment(startDate, "DD-MM-YYYY").add(sumaDia, 'day');
             var new_date2 = JSON.stringify(new_date._d);
 
-            var calculo =  bloque*multi
+            var calculo =  bloque*multi;
             var horai = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
 
-            calculo =  bloque*(multi + 1)
-            var horaf = (calculo < 10 ? "0" + calculo : calculo) + ":00" ;
+            calculo =  bloque*(multi + 1)-1;
+            var horaf = (calculo < 10 ? "0" + calculo : calculo) + ":59" ;
 
             if(h === 17){
                 setMulti(0);
@@ -280,6 +280,10 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             formData.append("date", new_date2);    
             formData.append("horai", horai);
 		    formData.append("horaf", horaf);
+
+            console.log(new_date2);
+            console.log(horai);
+            console.log(horaf);
 
             var requestOptions = {
                 method: "POST",
@@ -304,9 +308,11 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 			console.log(`UploadFileAns tomó ${diferencia} segundos`);
     
             uploadFile = await uploadFileAns.json();
+
+            console.log(uploadFile);
             
             if (uploadFile["estado"].length < 3) {
-                //console.log("entro");
+                console.log("entro");
                 setRespuesta(true);
                 setCargado(true);
                 
@@ -423,6 +429,8 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
             }else{
                 if (uploadFile["estado"].length > 6){
                     console.log("COLAPSO LOGISTICO  :c");
+                }else{
+                    console.log("ERROR :'v");
                 } 
             }
 
@@ -677,21 +685,27 @@ const MapBox = ({dataVuelos, startDate, endDate}) => {
 
             if(semaforo){                    
                 setSemaforo(false);                
-               
+                
+                // BLOQUE 6H
                 // if( (h === 2 || h === 8 || h === 14 || h === 20 ) ){             
                 //     loadData(h);       
                 //     cargarData();          
                 // }
                 
-
+                // BLOQUE 4H
                 if( (h === 1 || h === 5 || h === 9 || h === 13 || h === 17 || h === 21 ) ){             
                     cargarData();  
                     loadData(h);                                  
                 }
 
+                // BLOQUE 3H
+                // if( (h === 0 || h === 3 || h === 6 || h === 9 || h === 12 || h === 15 || h === 18 || h === 21 ) ){             
+                //     cargarData();  
+                //     loadData(h);                                  
+                // }
             }
 
-            if( (h !== 1 && h !== 5 && h !== 9 && h !== 13 && h !== 17 && h !== 21) && cargado){
+            if( (h !== 0 && h !== 3 && h !== 6 && h !== 9 && h !== 12 && h !== 15 && h !== 18 && h !== 21) && cargado){
                 setSemaforo(true);
             }
 

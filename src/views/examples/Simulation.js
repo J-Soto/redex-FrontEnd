@@ -415,7 +415,7 @@ class Simulation extends React.Component {
 			//console.log(uploadFile["estado"]);
 
 			var horai = "00:00";
-			var horaf = "04:00";
+			var horaf = "03:59";
 
 			if (uploadFile["estado"].length < 3) {
 				//console.log("entro");
